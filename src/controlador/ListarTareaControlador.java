@@ -1,8 +1,9 @@
 package controlador;
 
 import modelo.Prioridad;
-import modelo.Proyecto; // <-- IMPORTAR
+import modelo.Proyecto;
 import modelo.Tarea;
+import persistencia.LookupDAO;
 import persistencia.TareaDAO;
 import vista.ListarTareaVista;
 import vista.TarjetaTareaPanel;
@@ -32,9 +33,8 @@ public class ListarTareaControlador implements ActionListener {
         this.tareaDAO = new TareaDAO();
         this.todasLasTareas = tareaDAO.listarTodasLasTareas();
 
-        // Listeners
         this.vista.getBtnVolver().addActionListener(this);
-        this.vista.getComboFiltroProyecto().addActionListener(this); // <-- NUEVO LISTENER
+        this.vista.getComboFiltroProyecto().addActionListener(this);
         this.vista.getComboFiltroPrioridad().addActionListener(this);
         this.vista.getBtnVistaLista().addActionListener(this);
         this.vista.getBtnVistaKanban().addActionListener(this);
@@ -57,15 +57,12 @@ public class ListarTareaControlador implements ActionListener {
             vista.dispose();
             vistaAnterior.setVisible(true);
         } else {
-            // Cualquier otro ActionEvent (de los JComboBox o JToggleButton) dispara el filtro
             filtrarYMostrarTareas();
         }
     }
 
     private void filtrarYMostrarTareas() {
-        // --- LÓGICA DE FILTROS ACTUALIZADA ---
         String textoBusqueda = vista.getTxtBusqueda().getText().toLowerCase();
-
         Proyecto proyectoSeleccionado = (Proyecto) vista.getComboFiltroProyecto().getSelectedItem();
         Prioridad prioridadSeleccionada = (Prioridad) vista.getComboFiltroPrioridad().getSelectedItem();
 
@@ -76,11 +73,8 @@ public class ListarTareaControlador implements ActionListener {
 
         String finalNombrePrioridadFiltro = nombrePrioridadFiltro;
         List<Tarea> tareasFiltradas = todasLasTareas.stream()
-                // 1. Filtrar por proyecto
                 .filter(t -> proyectoSeleccionado == null || proyectoSeleccionado.getIdProyecto() == 0 || t.getIdProyecto() == proyectoSeleccionado.getIdProyecto())
-                // 2. Filtrar por nombre de tarea
                 .filter(t -> t.getNombreTarea().toLowerCase().contains(textoBusqueda))
-                // 3. Filtrar por prioridad
                 .filter(t -> finalNombrePrioridadFiltro.isEmpty() || t.getNombrePrioridad().equalsIgnoreCase(finalNombrePrioridadFiltro))
                 .collect(Collectors.toList());
 

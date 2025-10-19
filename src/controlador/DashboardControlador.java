@@ -1,23 +1,22 @@
 package controlador;
 
-import modelo.JerarquiaUsuario;
+import modelo.Estado;
 import modelo.Proyecto;
 import modelo.Tarea;
-import persistencia.EstadoDAO;
 import persistencia.JerarquiaUsuarioDAO;
+import persistencia.LookupDAO;
 import persistencia.ProyectoDAO;
 import persistencia.TareaDAO;
 import util.SesionUsuario;
 import vista.DashboardKanbanVista;
 import vista.TarjetaProyectoPanel;
-import vista.TarjetaTareaPanel; // <-- SE CAMBIA EL IMPORT
+import vista.TarjetaTareaPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class DashboardControlador {
@@ -26,14 +25,15 @@ public class DashboardControlador {
     private final ProyectoDAO proyectoDAO;
     private final TareaDAO tareaDAO;
     private final JerarquiaUsuarioDAO jerarquiaDAO;
-    private final EstadoDAO estadoDAO;
+    private final LookupDAO<Estado> estadoLookupDAO; // DAO Genérico para Estados
 
     public DashboardControlador(DashboardKanbanVista vista) {
         this.vista = vista;
         this.proyectoDAO = new ProyectoDAO();
         this.tareaDAO = new TareaDAO();
         this.jerarquiaDAO = new JerarquiaUsuarioDAO();
-        this.estadoDAO = new EstadoDAO();
+        this.estadoLookupDAO = new LookupDAO<>(); // Inicializar el DAO genérico
+
         this.vista.getPanelConPestanas().addChangeListener(e -> {
             if (vista.getPanelConPestanas().getSelectedIndex() == 0) {
                 cargarProyectos();
@@ -42,14 +42,21 @@ public class DashboardControlador {
     }
 
     public void iniciar() {
+        // --- LÓGICA DE DROP MODIFICADA PARA USAR LOOKUPDAO ---
         vista.configurarDropEnColumnasProyectos(tarjeta -> {
             Proyecto proyecto = tarjeta.getProyecto();
             Container parent = tarjeta.getParent();
             if (parent instanceof JPanel) {
-                String nuevoEstado = ((javax.swing.border.TitledBorder)((JPanel)parent).getBorder()).getTitle();
-                int idNuevoEstado = estadoDAO.obtenerIdPorNombre(nuevoEstado);
-                if (idNuevoEstado != -1) {
-                    proyectoDAO.actualizarEstado(proyecto.getIdProyecto(), idNuevoEstado);
+                String nuevoEstadoNombre = ((javax.swing.border.TitledBorder) ((JPanel) parent).getBorder()).getTitle();
+
+                Estado estadoObj = estadoLookupDAO.obtenerPorCampoUnico("estados", "NombreEstado", nuevoEstadoNombre, rs -> {
+                    Estado e = new Estado();
+                    e.setIdEstado(rs.getInt("IDEstado"));
+                    return e;
+                });
+
+                if (estadoObj != null) {
+                    proyectoDAO.actualizarEstado(proyecto.getIdProyecto(), estadoObj.getIdEstado());
                     cargarProyectos();
                 }
             }
@@ -58,14 +65,22 @@ public class DashboardControlador {
             Tarea tarea = tarjeta.getTarea();
             Container parent = tarjeta.getParent();
             if (parent instanceof JPanel) {
-                String nuevoEstado = ((javax.swing.border.TitledBorder)((JPanel)parent).getBorder()).getTitle();
-                int idNuevoEstado = estadoDAO.obtenerIdPorNombre(nuevoEstado);
-                if (idNuevoEstado != -1) {
-                    tareaDAO.actualizarEstado(tarea.getIdTarea(), idNuevoEstado);
-                    cargarProyectos(); // Simplificado para recargar todo
+                String nuevoEstadoNombre = ((javax.swing.border.TitledBorder) ((JPanel) parent).getBorder()).getTitle();
+
+                Estado estadoObj = estadoLookupDAO.obtenerPorCampoUnico("estados", "NombreEstado", nuevoEstadoNombre, rs -> {
+                    Estado e = new Estado();
+                    e.setIdEstado(rs.getInt("IDEstado"));
+                    return e;
+                });
+
+                if (estadoObj != null) {
+                    tareaDAO.actualizarEstado(tarea.getIdTarea(), estadoObj.getIdEstado());
+                    cargarProyectos();
                 }
             }
         });
+        // --------------------------------------------------------
+
         cargarProyectos();
         vista.setVisible(true);
     }
@@ -80,7 +95,7 @@ public class DashboardControlador {
             JPanel columna = vista.getPanelesColumnasProyectos().get(estadoColumna);
 
             if (columna != null) {
-                TarjetaProyectoPanel tarjeta = new TarjetaProyectoPanel(proyecto);
+                TarjetaProyectoPanel tarjeta = new TarjetaProyectoPanel(proyecto, false);
                 tarjeta.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
@@ -111,7 +126,6 @@ public class DashboardControlador {
             String estadoColumna = mapearEstadoAColumna(tarea.getNombreEstado());
             JPanel columna = vista.getPanelesColumnasTareas().get(estadoColumna);
             if (columna != null) {
-                // Se usa la nueva clase TarjetaTareaPanel
                 TarjetaTareaPanel tarjeta = new TarjetaTareaPanel(tarea);
                 columna.add(tarjeta);
                 columna.add(Box.createVerticalStrut(10));

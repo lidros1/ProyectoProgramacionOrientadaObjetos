@@ -1,7 +1,7 @@
 package controlador;
 
 import modelo.Prioridad;
-import persistencia.PrioridadDAO;
+import persistencia.LookupDAO;
 import persistencia.UsuarioDAO;
 import util.SesionUsuario;
 import vista.*;
@@ -43,8 +43,15 @@ public class MenuPrincipalControlador implements ActionListener {
             gestionProyectosControlador.iniciar();
         } else if (e.getSource() == vista.getBtnMisProyectos()) {
             vista.setVisible(false);
-            PrioridadDAO prioridadDAO = new PrioridadDAO();
-            List<Prioridad> prioridades = prioridadDAO.listarTodos();
+            // --- USO DEL NUEVO LOOKUP DAO ---
+            LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
+            List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> {
+                Prioridad p = new Prioridad();
+                p.setIdPrioridad(rs.getInt("IDPrioridad"));
+                p.setNombrePrioridad(rs.getString("NombrePrioridad"));
+                return p;
+            });
+            // --------------------------------
             MisProyectosVista misProyectosVista = new MisProyectosVista(prioridades);
             MisProyectosControlador misProyectosControlador = new MisProyectosControlador(misProyectosVista, vista);
             misProyectosControlador.iniciar();
@@ -54,7 +61,10 @@ public class MenuPrincipalControlador implements ActionListener {
             GestionTareasMenuControlador tareasControlador = new GestionTareasMenuControlador(tareasMenu, vista);
             tareasControlador.iniciar();
         } else if (e.getSource() == vista.getBtnReportes()) {
-            JOptionPane.showMessageDialog(vista, "Funcionalidad de Reportes (próximamente)");
+            vista.setVisible(false);
+            ReportesMenuVista reportesMenu = new ReportesMenuVista();
+            ReportesMenuControlador reportesControlador = new ReportesMenuControlador(reportesMenu, vista);
+            reportesControlador.iniciar();
         } else if (e.getSource() == vista.getBtnCerrarSesion()) {
             cerrarSesion();
         }

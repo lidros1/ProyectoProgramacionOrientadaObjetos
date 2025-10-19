@@ -129,7 +129,7 @@ public class ProyectoDAO {
 
     public List<Proyecto> listarTodosLosProyectos() {
         List<Proyecto> proyectos = new ArrayList<>();
-        String sql = "SELECT p.IDProyecto, p.NombreProyecto, pr.NombrePrioridad, e.NombreEstado " +
+        String sql = "SELECT p.IDProyecto, p.NombreProyecto, p.FechaInicio, p.FechaFinalEstimada, pr.NombrePrioridad, e.NombreEstado " +
                 "FROM proyectos p " +
                 "JOIN prioridades pr ON p.IDPrioridad = pr.IDPrioridad " +
                 "JOIN estados e ON p.IDEstado = e.IDEstado " +
@@ -145,6 +145,8 @@ public class ProyectoDAO {
                 proyecto.setNombreProyecto(rs.getString("NombreProyecto"));
                 proyecto.setNombrePrioridad(rs.getString("NombrePrioridad"));
                 proyecto.setNombreEstado(rs.getString("NombreEstado"));
+                proyecto.setFechaInicio(rs.getDate("FechaInicio"));
+                proyecto.setFechaFinalEstimada(rs.getDate("FechaFinalEstimada"));
 
                 java.math.BigDecimal avance = calcularPorcentajeAvance(proyecto.getIdProyecto());
                 proyecto.setPorcentajeAvance(avance);
@@ -163,15 +165,20 @@ public class ProyectoDAO {
      * @return true si la actualización fue exitosa, false en caso contrario.
      */
     public boolean actualizar(Proyecto proyecto) {
-        String sql = "UPDATE proyectos SET NombreProyecto = ?, DescripcionProyecto = ?, IDEstado = ?, IDPrioridad = ? WHERE IDProyecto = ?";
+        // --- CONSULTA SQL MODIFICADA ---
+        String sql = "UPDATE proyectos SET NombreProyecto = ?, IDEstado = ?, IDPrioridad = ?, " +
+                "FechaInicio = ?, FechaFinalEstimada = ? WHERE IDProyecto = ?";
         try (Connection conn = ConexionDataBase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, proyecto.getNombreProyecto());
-            pstmt.setString(2, proyecto.getDescripcionProyecto());
-            pstmt.setInt(3, proyecto.getIdEstado());
-            pstmt.setInt(4, proyecto.getIdPrioridad());
-            pstmt.setInt(5, proyecto.getIdProyecto());
+            pstmt.setInt(2, proyecto.getIdEstado());
+            pstmt.setInt(3, proyecto.getIdPrioridad());
+            // --- NUEVOS PARÁMETROS ---
+            pstmt.setDate(4, proyecto.getFechaInicio() != null ? new java.sql.Date(proyecto.getFechaInicio().getTime()) : null);
+            pstmt.setDate(5, proyecto.getFechaFinalEstimada() != null ? new java.sql.Date(proyecto.getFechaFinalEstimada().getTime()) : null);
+            // --- ID DEL PROYECTO ---
+            pstmt.setInt(6, proyecto.getIdProyecto());
 
             int filasAfectadas = pstmt.executeUpdate();
             return filasAfectadas > 0;

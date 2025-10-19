@@ -7,7 +7,6 @@ import vista.DialogoActualizarTarea;
 import vista.DialogoEditarTarea;
 import vista.ProyectoDetalleVista;
 import vista.TarjetaTareaPanel;
-import vista.TareaDetalleVista;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -26,8 +25,6 @@ public class ProyectoDetalleControlador implements ActionListener {
     private final JFrame vistaAnterior;
     private final TareaDAO tareaDAO;
     private final DesignacionDAO designacionDAO;
-    private final PrioridadDAO prioridadDAO;
-    private final EstadoDAO estadoDAO;
     private final UsuarioDAO usuarioDAO;
     private final ComentarioDAO comentarioDAO;
     private final Proyecto proyectoActual;
@@ -40,8 +37,6 @@ public class ProyectoDetalleControlador implements ActionListener {
         this.modoEdicionCompleta = modoEdicionCompleta;
         this.tareaDAO = new TareaDAO();
         this.designacionDAO = new DesignacionDAO();
-        this.prioridadDAO = new PrioridadDAO();
-        this.estadoDAO = new EstadoDAO();
         this.usuarioDAO = new UsuarioDAO();
         this.comentarioDAO = new ComentarioDAO();
         this.proyectoActual = vista.getProyecto();
@@ -56,7 +51,6 @@ public class ProyectoDetalleControlador implements ActionListener {
             this.todasLasTareasDelProyecto = tareaDAO.listarTareasPorProyectoYUsuario(proyectoActual.getIdProyecto(), idUsuarioLogueado);
         }
 
-        // Cargar usuarios del proyecto en la vista principal
         cargarUsuariosDesignadosAProyecto();
 
         this.vista.getBtnVolverAProyectos().addActionListener(this);
@@ -164,8 +158,24 @@ public class ProyectoDetalleControlador implements ActionListener {
     }
 
     private void abrirDialogoEdicionTarea(Tarea tarea) {
-        List<Prioridad> prioridades = prioridadDAO.listarTodos();
-        List<Estado> estados = estadoDAO.listarTodos();
+        // --- USO DEL NUEVO LOOKUP DAO ---
+        LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
+        List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> {
+            Prioridad p = new Prioridad();
+            p.setIdPrioridad(rs.getInt("IDPrioridad"));
+            p.setNombrePrioridad(rs.getString("NombrePrioridad"));
+            return p;
+        });
+
+        LookupDAO<Estado> estadoLookup = new LookupDAO<>();
+        List<Estado> estados = estadoLookup.listarTodos("estados", rs -> {
+            Estado e = new Estado();
+            e.setIdEstado(rs.getInt("IDEstado"));
+            e.setNombreEstado(rs.getString("NombreEstado"));
+            return e;
+        });
+        // --------------------------------
+
         List<Usuario> todosLosUsuarios = usuarioDAO.listarTodos();
         tarea.setUsuariosDesignados(designacionDAO.listarUsuariosDesignadosATarea(tarea.getIdTarea()));
 
@@ -190,7 +200,13 @@ public class ProyectoDetalleControlador implements ActionListener {
     }
 
     private void abrirDialogoActualizarTarea(Tarea tarea) {
-        List<Estado> estados = estadoDAO.listarTodos();
+        LookupDAO<Estado> estadoLookup = new LookupDAO<>();
+        List<Estado> estados = estadoLookup.listarTodos("estados", rs -> {
+            Estado e = new Estado();
+            e.setIdEstado(rs.getInt("IDEstado"));
+            e.setNombreEstado(rs.getString("NombreEstado"));
+            return e;
+        });
         DialogoActualizarTarea dialogo = new DialogoActualizarTarea(vista, tarea, estados);
 
         dialogo.getBtnPublicarComentario().addActionListener(e -> {

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EditarProyectoVista extends JFrame {
+public class ExploradorProyectosVista extends JFrame {
     private JToggleButton btnVistaLista;
     private JToggleButton btnVistaKanban;
     private JComboBox<Prioridad> comboFiltroPrioridad;
@@ -15,11 +15,10 @@ public class EditarProyectoVista extends JFrame {
     private JButton btnVolver;
     private JPanel panelContenedorPrincipal;
     private JPanel panelContenidoLista;
-    private JPanel panelContenidoKanban;
     private Map<String, JPanel> columnasKanban;
 
-    public EditarProyectoVista(List<Prioridad> prioridades) {
-        setTitle("Editar Proyectos");
+    public ExploradorProyectosVista(List<Prioridad> prioridades) {
+        // El título se establecerá desde el controlador
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -63,7 +62,7 @@ public class EditarProyectoVista extends JFrame {
         panelContenidoLista = new JPanel();
         panelContenidoLista.setLayout(new BoxLayout(panelContenidoLista, BoxLayout.Y_AXIS));
 
-        panelContenidoKanban = new JPanel(new GridLayout(1, 5, 10, 10));
+        JPanel panelContenidoKanban = new JPanel(new GridLayout(1, 5, 10, 10));
         columnasKanban = new HashMap<>();
         String[] nombresColumnas = {"POR HACER", "EN PROGRESO", "EN REVISIÓN", "BLOQUEADO", "HECHO"};
         for (String nombreColumna : nombresColumnas) {
@@ -80,6 +79,7 @@ public class EditarProyectoVista extends JFrame {
         add(panelContenedorPrincipal, BorderLayout.CENTER);
     }
 
+    // Getters
     public JToggleButton getBtnVistaLista() { return btnVistaLista; }
     public JToggleButton getBtnVistaKanban() { return btnVistaKanban; }
     public JComboBox<Prioridad> getComboFiltroPrioridad() { return comboFiltroPrioridad; }

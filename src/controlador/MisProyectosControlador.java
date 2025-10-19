@@ -2,7 +2,7 @@ package controlador;
 
 import modelo.Prioridad;
 import modelo.Proyecto;
-import persistencia.PrioridadDAO;
+import persistencia.LookupDAO;
 import persistencia.ProyectoDAO;
 import util.SesionUsuario;
 import vista.MisProyectosVista;
@@ -24,19 +24,16 @@ public class MisProyectosControlador implements ActionListener {
     private final MisProyectosVista vista;
     private final JFrame vistaAnterior;
     private final ProyectoDAO proyectoDAO;
-    private final PrioridadDAO prioridadDAO;
     private List<Proyecto> proyectosDelUsuario;
 
     public MisProyectosControlador(MisProyectosVista vista, JFrame vistaAnterior) {
         this.vista = vista;
         this.vistaAnterior = vistaAnterior;
         this.proyectoDAO = new ProyectoDAO();
-        this.prioridadDAO = new PrioridadDAO();
 
         int idUsuarioLogueado = SesionUsuario.getUsuarioLogueado().getIdUsuario();
         this.proyectosDelUsuario = proyectoDAO.listarProyectosPorUsuario(idUsuarioLogueado);
 
-        // Listeners
         this.vista.getBtnVolver().addActionListener(this);
         this.vista.getComboFiltroPrioridad().addActionListener(this);
         this.vista.getTxtBusqueda().getDocument().addDocumentListener(new DocumentListener() {
@@ -99,14 +96,21 @@ public class MisProyectosControlador implements ActionListener {
     }
 
     private TarjetaProyectoPanel crearTarjeta(Proyecto proyecto) {
-        TarjetaProyectoPanel tarjeta = new TarjetaProyectoPanel(proyecto);
+        TarjetaProyectoPanel tarjeta = new TarjetaProyectoPanel(proyecto, false);
         tarjeta.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 vista.setVisible(false);
-                List<Prioridad> prioridades = prioridadDAO.listarTodos();
+                // --- USO DEL NUEVO LOOKUP DAO ---
+                LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
+                List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> {
+                    Prioridad p = new Prioridad();
+                    p.setIdPrioridad(rs.getInt("IDPrioridad"));
+                    p.setNombrePrioridad(rs.getString("NombrePrioridad"));
+                    return p;
+                });
+                // --------------------------------
                 ProyectoDetalleVista detalleVista = new ProyectoDetalleVista(proyecto, prioridades);
-                // --- MODIFICACIÓN AQUÍ: Se pasa 'false' para el modo de edición ---
                 ProyectoDetalleControlador detalleControlador = new ProyectoDetalleControlador(detalleVista, vista, false);
                 detalleControlador.iniciar();
             }

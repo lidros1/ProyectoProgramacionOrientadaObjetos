@@ -2,13 +2,12 @@ package controlador;
 
 import modelo.AreaSistema;
 import modelo.Funcion;
-import persistencia.AreaSistemaDAO;
-import persistencia.FuncionDAO;
+import persistencia.LookupDAO;
 import vista.CrearUsuarioVista;
-import vista.EditarUsuarioVista; // IMPORTAR
+import vista.EditarUsuarioVista;
 import vista.GestionUsuariosMenuVista;
 import vista.ListarUsuarioVista;
-import vista.MenuPrincipalVista;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,10 +35,23 @@ public class GestionUsuariosMenuControlador implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.getBtnCrearUsuario()) {
             vista.setVisible(false);
-            AreaSistemaDAO areaDAO = new AreaSistemaDAO();
-            FuncionDAO funcionDAO = new FuncionDAO();
-            List<AreaSistema> areas = areaDAO.listarTodas();
-            List<Funcion> funciones = funcionDAO.listarTodas();
+            // --- USO DEL NUEVO LOOKUP DAO ---
+            LookupDAO<AreaSistema> areaLookup = new LookupDAO<>();
+            List<AreaSistema> areas = areaLookup.listarTodos("areassistema", rs -> {
+                AreaSistema a = new AreaSistema();
+                a.setIdAreaSistema(rs.getInt("IDAreaSistema"));
+                a.setNombreAreaSistema(rs.getString("nombreAreaSistema"));
+                return a;
+            });
+
+            LookupDAO<Funcion> funcionLookup = new LookupDAO<>();
+            List<Funcion> funciones = funcionLookup.listarTodos("funciones", rs -> {
+                Funcion f = new Funcion();
+                f.setIdFuncion(rs.getInt("IDFuncion"));
+                f.setNombreFuncion(rs.getString("nombreFuncion"));
+                return f;
+            });
+            // --------------------------------
             CrearUsuarioVista crearVista = new CrearUsuarioVista(areas, funciones);
             CrearUsuarioControlador crearControlador = new CrearUsuarioControlador(crearVista, vista);
             crearControlador.iniciar();
@@ -51,16 +63,27 @@ public class GestionUsuariosMenuControlador implements ActionListener {
             listarControlador.iniciar();
 
         } else if (e.getSource() == vista.getBtnEditarUsuario()) {
-            // --- MODIFICACIÓN AQUÍ ---
             vista.setVisible(false);
-            AreaSistemaDAO areaDAO = new AreaSistemaDAO();
-            FuncionDAO funcionDAO = new FuncionDAO();
-            List<AreaSistema> areas = areaDAO.listarTodas();
-            List<Funcion> funciones = funcionDAO.listarTodas();
+            // --- USO DEL NUEVO LOOKUP DAO ---
+            LookupDAO<AreaSistema> areaLookup = new LookupDAO<>();
+            List<AreaSistema> areas = areaLookup.listarTodos("areassistema", rs -> {
+                AreaSistema a = new AreaSistema();
+                a.setIdAreaSistema(rs.getInt("IDAreaSistema"));
+                a.setNombreAreaSistema(rs.getString("nombreAreaSistema"));
+                return a;
+            });
+
+            LookupDAO<Funcion> funcionLookup = new LookupDAO<>();
+            List<Funcion> funciones = funcionLookup.listarTodos("funciones", rs -> {
+                Funcion f = new Funcion();
+                f.setIdFuncion(rs.getInt("IDFuncion"));
+                f.setNombreFuncion(rs.getString("nombreFuncion"));
+                return f;
+            });
+            // --------------------------------
             EditarUsuarioVista editarVista = new EditarUsuarioVista(areas, funciones);
             EditarUsuarioControlador editarControlador = new EditarUsuarioControlador(editarVista, vista);
             editarControlador.iniciar();
-            // -------------------------
 
         } else if (e.getSource() == vista.getBtnVolver()) {
             vista.dispose();
