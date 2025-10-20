@@ -1,3 +1,4 @@
+// Archivo: src/vista/GestionUsuariosMenuVista.java
 package vista;
 
 import javax.swing.*;
@@ -11,29 +12,44 @@ public class GestionUsuariosMenuVista extends JFrame {
 
     public GestionUsuariosMenuVista() {
         setTitle("Gestión de Usuarios");
-        setSize(400, 350);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Cierra solo esta ventana
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridBagLayout());
 
+        // Corrección de tamaño y estilo de fondo
+        TemaPersonalizado.configurarVentana(this);
+
+        // Panel central para los botones
+        JPanel panelCentral = new JPanel(new GridBagLayout());
+        panelCentral.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
+        gbc.weightx = 1.0;
+        gbc.ipadx = 100;
 
         btnCrearUsuario = new JButton("Crear Usuario");
-        btnListarUsuario = new JButton("Listar Usuario");
-        btnEditarUsuario = new JButton("Editar Usuario");
+        btnListarUsuario = new JButton("Listar Usuarios");
+        btnEditarUsuario = new JButton("Editar Usuario y Permisos");
         btnVolver = new JButton("Volver al Menú Principal");
 
-        gbc.gridy = 0; add(btnCrearUsuario, gbc);
-        gbc.gridy = 1; add(btnListarUsuario, gbc);
-        gbc.gridy = 2; add(btnEditarUsuario, gbc);
-        gbc.gridy = 3; add(new JSeparator(), gbc); // Un separador visual
-        gbc.gridy = 4; add(btnVolver, gbc);
+        // Aplicar estilos
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnCrearUsuario);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnListarUsuario);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnEditarUsuario);
+        TemaPersonalizado.aplicarEstiloBotonSecundario(btnVolver);
+
+        gbc.gridy = 0; panelCentral.add(btnCrearUsuario, gbc);
+        gbc.gridy = 1; panelCentral.add(btnListarUsuario, gbc);
+        gbc.gridy = 2; panelCentral.add(btnEditarUsuario, gbc);
+
+        gbc.insets = new Insets(20, 10, 10, 10);
+        gbc.gridy = 3; panelCentral.add(btnVolver, gbc);
+
+        add(panelCentral, BorderLayout.CENTER);
     }
 
-    // Getters para el controlador
+    // Getters
     public JButton getBtnCrearUsuario() { return btnCrearUsuario; }
     public JButton getBtnListarUsuario() { return btnListarUsuario; }
     public JButton getBtnEditarUsuario() { return btnEditarUsuario; }

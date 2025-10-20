@@ -1,34 +1,54 @@
+// Archivo: src/vista/TarjetaTareaPanel.java
 package vista;
 
 import modelo.Tarea;
 import javax.swing.*;
 import java.awt.*;
-import java.math.BigDecimal; // Importar BigDecimal
+import java.math.BigDecimal;
 
 public class TarjetaTareaPanel extends JPanel {
     private Tarea tarea;
 
     public TarjetaTareaPanel(Tarea tarea) {
         this.tarea = tarea;
+        setLayout(new BorderLayout(5, 5));
 
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-                BorderFactory.createEmptyBorder(8, 8, 8, 8)
-        ));
-        setMaximumSize(new Dimension(Integer.MAX_VALUE, 90)); // Altura fija para tareas
-        setBackground(new Color(248, 248, 255)); // Un color más suave
+        // Borde y tamaño
+        setBorder(ConstantesUI.BORDE_COMPUESTO);
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, 95));
+        setMinimumSize(new Dimension(200, 95));
+        setPreferredSize(new Dimension(250, 95));
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        setToolTipText("Clic para ver detalles de la tarea");
 
-        // Panel de información (Nombre y Prioridad)
+        // Asignar color de fondo según la prioridad
+        switch (tarea.getNombrePrioridad().toUpperCase()) {
+            case "ALTA":
+                setBackground(ConstantesUI.COLOR_PRIORIDAD_ALTA);
+                break;
+            case "MEDIA":
+                setBackground(ConstantesUI.COLOR_PRIORIDAD_MEDIA);
+                break;
+            case "BAJA":
+                setBackground(ConstantesUI.COLOR_PRIORIDAD_BAJA);
+                break;
+            default:
+                setBackground(ConstantesUI.COLOR_FONDO_SECUNDARIO);
+                break;
+        }
+
+        // Panel de información
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setOpaque(false); // Para que el color de fondo del padre se vea
+        infoPanel.setOpaque(false);
 
-        JLabel lblNombre = new JLabel("<html><b>" + tarea.getNombreTarea() + "</b></html>");
-        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        JLabel lblNombre = new JLabel("<html><body style='width: 180px'>" + tarea.getNombreTarea() + "</body></html>");
+        lblNombre.setFont(ConstantesUI.FUENTE_SUBTITULO);
+        lblNombre.setForeground(ConstantesUI.COLOR_TEXTO_PRINCIPAL);
 
         JLabel lblPrioridad = new JLabel("Prioridad: " + tarea.getNombrePrioridad());
-        lblPrioridad.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblPrioridad.setFont(ConstantesUI.FUENTE_PEQUENA);
+        lblPrioridad.setForeground(ConstantesUI.COLOR_TEXTO_SECUNDARIO);
 
         infoPanel.add(lblNombre);
         infoPanel.add(Box.createVerticalStrut(3));
@@ -36,23 +56,18 @@ public class TarjetaTareaPanel extends JPanel {
 
         add(infoPanel, BorderLayout.CENTER);
 
-        // Panel de progreso (Barra y Porcentaje)
-        JPanel progressPanel = new JPanel();
-        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
-        progressPanel.setOpaque(false);
-
+        // Barra de progreso
         JProgressBar progressBar = new JProgressBar(0, 100);
         BigDecimal porcentajeAvance = tarea.getPorcentajeAvance();
         int progressValue = (porcentajeAvance != null) ? porcentajeAvance.intValue() : 0;
         progressBar.setValue(progressValue);
         progressBar.setStringPainted(true);
         progressBar.setString(progressValue + "%");
+        progressBar.setFont(ConstantesUI.FUENTE_PEQUENA);
 
-        progressPanel.add(progressBar);
-        add(progressPanel, BorderLayout.SOUTH);
+        add(progressBar, BorderLayout.SOUTH);
     }
 
-    // Getter para que el controlador sepa a qué tarea se hizo clic
     public Tarea getTarea() {
         return tarea;
     }

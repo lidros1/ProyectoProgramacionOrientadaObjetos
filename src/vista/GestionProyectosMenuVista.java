@@ -1,3 +1,4 @@
+// Archivo: src/vista/GestionProyectosMenuVista.java
 package vista;
 
 import javax.swing.*;
@@ -12,28 +13,44 @@ public class GestionProyectosMenuVista extends JFrame {
 
     public GestionProyectosMenuVista() {
         setTitle("Gestión de Proyectos");
-        setSize(400, 350);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridBagLayout());
 
+        // Corrección de tamaño y estilo de fondo
+        TemaPersonalizado.configurarVentana(this);
+
+        // Panel central para los botones
+        JPanel panelCentral = new JPanel(new GridBagLayout());
+        panelCentral.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
+        gbc.weightx = 1.0;
+        gbc.ipadx = 100;
 
         btnCrearProyecto = new JButton("Crear Proyecto");
         btnListarProyecto = new JButton("Listar Proyectos");
         btnEditarProyecto = new JButton("Editar Proyecto");
-        btnDesignarProyecto = new JButton("Designar Proyecto");
+        btnDesignarProyecto = new JButton("Designar Equipo a Proyecto");
         btnVolver = new JButton("Volver al Menú Principal");
 
-        gbc.gridy = 0; add(btnCrearProyecto, gbc);
-        gbc.gridy = 1; add(btnListarProyecto, gbc);
-        gbc.gridy = 2; add(btnEditarProyecto, gbc);
-        gbc.gridy = 3; add(btnDesignarProyecto, gbc);
-        gbc.gridy = 4; add(new JSeparator(), gbc);
-        gbc.gridy = 5; add(btnVolver, gbc);
+        // Aplicar estilos
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnCrearProyecto);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnListarProyecto);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnEditarProyecto);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnDesignarProyecto);
+        TemaPersonalizado.aplicarEstiloBotonSecundario(btnVolver);
+
+        gbc.gridy = 0; panelCentral.add(btnCrearProyecto, gbc);
+        gbc.gridy = 1; panelCentral.add(btnListarProyecto, gbc);
+        gbc.gridy = 2; panelCentral.add(btnEditarProyecto, gbc);
+        gbc.gridy = 3; panelCentral.add(btnDesignarProyecto, gbc);
+
+        gbc.insets = new Insets(20, 10, 10, 10);
+        gbc.gridy = 4; panelCentral.add(btnVolver, gbc);
+
+        add(panelCentral, BorderLayout.CENTER);
     }
 
     // Getters para el controlador

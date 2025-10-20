@@ -1,3 +1,4 @@
+// Archivo: src/vista/MenuPrincipalVista.java
 package vista;
 
 import modelo.Usuario;
@@ -15,15 +16,23 @@ public class MenuPrincipalVista extends JFrame {
 
     public MenuPrincipalVista() {
         setTitle("Menú Principal - Gestor de Proyectos");
-        setSize(400, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridBagLayout());
 
+        // Aplicar propiedades de la ventana (maximizar, etc.)
+        TemaPersonalizado.configurarVentana(this);
+
+        // Panel principal con GridBagLayout para centrar los botones
+        JPanel panelCentral = new JPanel(new GridBagLayout());
+        panelCentral.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
+
+        // --- AJUSTE CLAVE: Ancho preferido de los botones ---
+        // Hacemos que los botones tengan un ancho preferido para que no se expandan infinitamente.
+        Dimension buttonSize = new Dimension(350, 40);
 
         btnGestionUsuarios = new JButton("Gestión Usuarios");
         btnGestionProyectos = new JButton("Gestión Proyectos");
@@ -32,14 +41,32 @@ public class MenuPrincipalVista extends JFrame {
         btnReportes = new JButton("Reportes");
         btnCerrarSesion = new JButton("Cerrar Sesión");
 
-        // --- ORDEN DE BOTONES MODIFICADO ---
-        gbc.gridy = 0; add(btnMisProyectos, gbc);      // <-- MOVIDO AL PRIMER LUGAR
-        gbc.gridy = 1; add(btnGestionUsuarios, gbc);
-        gbc.gridy = 2; add(btnGestionProyectos, gbc);
-        gbc.gridy = 3; add(btnGestionTareas, gbc);
-        gbc.gridy = 4; add(btnReportes, gbc);
-        gbc.gridy = 5; add(new JSeparator(), gbc);
-        gbc.gridy = 6; add(btnCerrarSesion, gbc);
+        // Asignar tamaño preferido a cada botón
+        btnMisProyectos.setPreferredSize(buttonSize);
+        btnGestionUsuarios.setPreferredSize(buttonSize);
+        btnGestionProyectos.setPreferredSize(buttonSize);
+        btnGestionTareas.setPreferredSize(buttonSize);
+        btnReportes.setPreferredSize(buttonSize);
+        btnCerrarSesion.setPreferredSize(buttonSize);
+
+        // Aplicar estilos a los botones
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnMisProyectos);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnGestionUsuarios);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnGestionProyectos);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnGestionTareas);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnReportes);
+        TemaPersonalizado.aplicarEstiloBotonSecundario(btnCerrarSesion);
+
+        gbc.gridy = 0; panelCentral.add(btnMisProyectos, gbc);
+        gbc.gridy = 1; panelCentral.add(btnGestionUsuarios, gbc);
+        gbc.gridy = 2; panelCentral.add(btnGestionProyectos, gbc);
+        gbc.gridy = 3; panelCentral.add(btnGestionTareas, gbc);
+        gbc.gridy = 4; panelCentral.add(btnReportes, gbc);
+
+        gbc.insets = new Insets(20, 10, 10, 10);
+        gbc.gridy = 5; panelCentral.add(btnCerrarSesion, gbc);
+
+        add(panelCentral, BorderLayout.CENTER);
 
         configurarVisibilidadBotones();
     }
@@ -49,7 +76,6 @@ public class MenuPrincipalVista extends JFrame {
         if (usuarioLogueado != null) {
             btnGestionUsuarios.setVisible(usuarioLogueado.tienePermiso("Gestion de Usuarios", "Listar"));
             btnGestionProyectos.setVisible(usuarioLogueado.tienePermiso("Gestion de Proyectos", "Listar"));
-            // Para "Mis Proyectos" asumimos que todos los usuarios logueados tienen acceso
             btnMisProyectos.setVisible(true);
             btnGestionTareas.setVisible(usuarioLogueado.tienePermiso("Gestion de Tareas", "Listar"));
             btnReportes.setVisible(usuarioLogueado.tienePermiso("Reportes", "Listar"));

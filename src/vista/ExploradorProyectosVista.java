@@ -1,3 +1,4 @@
+// Archivo: src/vista/ExploradorProyectosVista.java
 package vista;
 
 import modelo.Prioridad;
@@ -19,58 +20,81 @@ public class ExploradorProyectosVista extends JFrame {
 
     public ExploradorProyectosVista(List<Prioridad> prioridades) {
         // El título se establecerá desde el controlador
-        setSize(1200, 800);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        // Corrección de tamaño y estilo
+        TemaPersonalizado.configurarVentana(this);
         setLayout(new BorderLayout(10, 10));
 
         JPanel panelFiltros = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        panelFiltros.setOpaque(false);
+        panelFiltros.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         btnVistaLista = new JToggleButton("Lista", true);
         btnVistaKanban = new JToggleButton("Kanban");
+        TemaPersonalizado.aplicarEstiloBotonAlternar(btnVistaLista);
+        TemaPersonalizado.aplicarEstiloBotonAlternar(btnVistaKanban);
         ButtonGroup grupoVistas = new ButtonGroup();
         grupoVistas.add(btnVistaLista);
         grupoVistas.add(btnVistaKanban);
 
         comboFiltroPrioridad = new JComboBox<>();
+        comboFiltroPrioridad.setFont(ConstantesUI.FUENTE_NORMAL);
         Prioridad todas = new Prioridad();
         todas.setIdPrioridad(0);
-        todas.setNombrePrioridad("Todas");
+        todas.setNombrePrioridad("Todas las Prioridades");
         comboFiltroPrioridad.addItem(todas);
-        for (Prioridad p : prioridades) {
-            comboFiltroPrioridad.addItem(p);
-        }
+        prioridades.forEach(comboFiltroPrioridad::addItem);
 
         txtBusqueda = new JTextField(20);
+        txtBusqueda.setFont(ConstantesUI.FUENTE_NORMAL);
         btnVolver = new JButton("Volver");
+        TemaPersonalizado.aplicarEstiloBotonSecundario(btnVolver);
 
         panelFiltros.add(new JLabel("Vista:"));
         panelFiltros.add(btnVistaLista);
         panelFiltros.add(btnVistaKanban);
         panelFiltros.add(new JSeparator(SwingConstants.VERTICAL));
-        panelFiltros.add(new JLabel("Filtrar por Prioridad:"));
+        panelFiltros.add(new JLabel("Prioridad:"));
         panelFiltros.add(comboFiltroPrioridad);
         panelFiltros.add(new JSeparator(SwingConstants.VERTICAL));
-        panelFiltros.add(new JLabel("Buscar por Nombre:"));
+        panelFiltros.add(new JLabel("Buscar:"));
         panelFiltros.add(txtBusqueda);
-        panelFiltros.add(btnVolver);
 
-        add(panelFiltros, BorderLayout.NORTH);
+        JPanel panelVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panelVolver.setOpaque(false);
+        panelVolver.add(btnVolver);
+
+        JPanel panelSuperior = new JPanel(new BorderLayout());
+        panelSuperior.setOpaque(false);
+        panelSuperior.add(panelFiltros, BorderLayout.WEST);
+        panelSuperior.add(panelVolver, BorderLayout.EAST);
+
+        add(panelSuperior, BorderLayout.NORTH);
 
         panelContenedorPrincipal = new JPanel(new CardLayout());
+        panelContenedorPrincipal.setOpaque(false);
 
         panelContenidoLista = new JPanel();
         panelContenidoLista.setLayout(new BoxLayout(panelContenidoLista, BoxLayout.Y_AXIS));
+        panelContenidoLista.setOpaque(false);
 
         JPanel panelContenidoKanban = new JPanel(new GridLayout(1, 5, 10, 10));
+        panelContenidoKanban.setOpaque(false);
+        panelContenidoKanban.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         columnasKanban = new HashMap<>();
         String[] nombresColumnas = {"POR HACER", "EN PROGRESO", "EN REVISIÓN", "BLOQUEADO", "HECHO"};
         for (String nombreColumna : nombresColumnas) {
             JPanel columna = new JPanel();
             columna.setLayout(new BoxLayout(columna, BoxLayout.Y_AXIS));
-            columna.setBorder(BorderFactory.createTitledBorder(nombreColumna));
+            columna.setBorder(BorderFactory.createTitledBorder(nombreColumna)); // El estilo se aplica después
+            TemaPersonalizado.aplicarEstiloColumnaKanban(columna);
             columnasKanban.put(nombreColumna, columna);
-            panelContenidoKanban.add(new JScrollPane(columna));
+            JScrollPane scrollColumna = new JScrollPane(columna);
+            scrollColumna.setBorder(null);
+            scrollColumna.getViewport().setOpaque(false);
+            panelContenidoKanban.add(scrollColumna);
         }
 
         panelContenedorPrincipal.add(new JScrollPane(panelContenidoLista), "Lista");

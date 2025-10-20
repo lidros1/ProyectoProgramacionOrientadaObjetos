@@ -1,3 +1,4 @@
+// Archivo: src/vista/ListarUsuarioVista.java
 package vista;
 
 import modelo.Usuario;
@@ -13,49 +14,56 @@ public class ListarUsuarioVista extends JFrame {
 
     public ListarUsuarioVista() {
         setTitle("Listar y Ver Usuarios");
-        setSize(700, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // --- Panel de Búsqueda y Resultados ---
+        TemaPersonalizado.configurarVentana(this);
+
+        // Panel Izquierdo
         JPanel panelIzquierdo = new JPanel(new BorderLayout(5, 5));
-        panelIzquierdo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panelIzquierdo.setBorder(ConstantesUI.BORDE_TITULO("Buscar Usuario"));
+        panelIzquierdo.setOpaque(false);
 
         txtBuscar = new JTextField();
-        panelIzquierdo.add(new JLabel("Buscar por nombre:"), BorderLayout.NORTH);
-        panelIzquierdo.add(txtBuscar, BorderLayout.CENTER);
+        txtBuscar.setFont(ConstantesUI.FUENTE_NORMAL);
+        panelIzquierdo.add(txtBuscar, BorderLayout.NORTH);
 
         listModel = new DefaultListModel<>();
         listaResultados = new JList<>(listModel);
+        listaResultados.setFont(ConstantesUI.FUENTE_NORMAL);
         JScrollPane scrollLista = new JScrollPane(listaResultados);
-        panelIzquierdo.add(scrollLista, BorderLayout.SOUTH);
+        panelIzquierdo.add(scrollLista, BorderLayout.CENTER);
 
-        // --- Panel de Detalles ---
+        // Panel Derecho
         JPanel panelDerecho = new JPanel(new GridBagLayout());
-        panelDerecho.setBorder(BorderFactory.createTitledBorder("Detalles del Usuario"));
+        panelDerecho.setBorder(ConstantesUI.BORDE_TITULO("Detalles del Usuario"));
+        panelDerecho.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0; gbc.gridy = 0; panelDerecho.add(new JLabel("Nombre:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 0; lblNombre = new JLabel("-"); panelDerecho.add(lblNombre, gbc);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.3; panelDerecho.add(new JLabel("<html><b>Nombre:</b></html>"), gbc);
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.7; lblNombre = new JLabel("-"); lblNombre.setFont(ConstantesUI.FUENTE_NORMAL); panelDerecho.add(lblNombre, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; panelDerecho.add(new JLabel("Email:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 1; lblMail = new JLabel("-"); panelDerecho.add(lblMail, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; panelDerecho.add(new JLabel("<html><b>Email:</b></html>"), gbc);
+        gbc.gridx = 1; gbc.gridy = 1; lblMail = new JLabel("-"); lblMail.setFont(ConstantesUI.FUENTE_NORMAL); panelDerecho.add(lblMail, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 2; panelDerecho.add(new JLabel("Fecha Creación:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 2; lblFechaCreacion = new JLabel("-"); panelDerecho.add(lblFechaCreacion, gbc);
+        gbc.gridx = 0; gbc.gridy = 2; panelDerecho.add(new JLabel("<html><b>Fecha Creación:</b></html>"), gbc);
+        gbc.gridx = 1; gbc.gridy = 2; lblFechaCreacion = new JLabel("-"); lblFechaCreacion.setFont(ConstantesUI.FUENTE_NORMAL); panelDerecho.add(lblFechaCreacion, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 3; panelDerecho.add(new JLabel("Último Acceso:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 3; lblUltimoAcceso = new JLabel("-"); panelDerecho.add(lblUltimoAcceso, gbc);
+        gbc.gridx = 0; gbc.gridy = 3; panelDerecho.add(new JLabel("<html><b>Último Acceso:</b></html>"), gbc);
+        gbc.gridx = 1; gbc.gridy = 3; lblUltimoAcceso = new JLabel("-"); lblUltimoAcceso.setFont(ConstantesUI.FUENTE_NORMAL); panelDerecho.add(lblUltimoAcceso, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
+        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.NONE; gbc.anchor = GridBagConstraints.SOUTHEAST; gbc.weighty = 1.0;
         btnVolver = new JButton("Volver");
+        TemaPersonalizado.aplicarEstiloBotonSecundario(btnVolver);
         panelDerecho.add(btnVolver, gbc);
 
-        // --- Contenedor Principal (Split Pane) ---
+        // Contenedor Principal
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelIzquierdo, panelDerecho);
-        splitPane.setDividerLocation(250);
+        splitPane.setDividerLocation(350);
+        splitPane.setOpaque(false);
 
         add(splitPane);
     }

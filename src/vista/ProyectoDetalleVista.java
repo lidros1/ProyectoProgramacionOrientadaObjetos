@@ -1,3 +1,4 @@
+// Archivo: src/vista/ProyectoDetalleVista.java
 package vista;
 
 import modelo.Prioridad;
@@ -6,138 +7,146 @@ import modelo.Usuario;
 import javax.swing.*;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ProyectoDetalleVista extends JFrame {
     private Proyecto proyecto;
-
-    // --- Detalles del Proyecto ---
-    private JLabel lblNombreProyecto;
-    private JProgressBar progressBarProyecto;
-    private JList<Usuario> listaUsuariosProyecto;
-    private DefaultListModel<Usuario> listModelUsuariosProyecto;
-
-    // --- Panel de Filtros de Tareas ---
     private JToggleButton btnVistaListaTareas;
     private JToggleButton btnVistaKanbanTareas;
     private JComboBox<Prioridad> comboFiltroPrioridadTareas;
     private JTextField txtBusquedaTareas;
     private JButton btnVolverAProyectos;
-
-    // --- Panel de Contenido de Tareas (con CardLayout) ---
     private JPanel panelContenedorPrincipalTareas;
     private JPanel panelContenidoListaTareas;
-    private JPanel panelContenidoKanbanTareas;
     private Map<String, JPanel> columnasKanbanTareas;
+    private DefaultListModel<Usuario> listModelUsuariosProyecto;
 
     public ProyectoDetalleVista(Proyecto proyecto, List<Prioridad> prioridadesDisponibles) {
         this.proyecto = proyecto;
         setTitle("Detalles del Proyecto: " + proyecto.getNombreProyecto());
-        setSize(1200, 800);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        TemaPersonalizado.configurarVentana(this);
         setLayout(new BorderLayout(10, 10));
 
-        // --- Panel Superior: Información General ---
-        JPanel panelSuperior = new JPanel(new BorderLayout(10, 10));
-        panelSuperior.setBorder(BorderFactory.createTitledBorder("Información del Proyecto"));
+        // Panel Superior
+        JPanel panelSuperior = new JPanel(new BorderLayout(15, 15));
+        panelSuperior.setBorder(BorderFactory.createCompoundBorder(
+                ConstantesUI.BORDE_TITULO("Información del Proyecto"),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        panelSuperior.setOpaque(false);
 
-        // --- Panel Izquierdo Superior: Detalles de texto ---
+        // Izquierda: Info básica
         JPanel panelInfoIzquierda = new JPanel();
+        panelInfoIzquierda.setOpaque(false);
         panelInfoIzquierda.setLayout(new BoxLayout(panelInfoIzquierda, BoxLayout.Y_AXIS));
-        lblNombreProyecto = new JLabel("<html><b>" + proyecto.getNombreProyecto() + "</b></html>");
-        lblNombreProyecto.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        JLabel lblNombreProyecto = new JLabel("<html><b>" + proyecto.getNombreProyecto() + "</b></html>");
+        lblNombreProyecto.setFont(ConstantesUI.FUENTE_TITULO);
         JLabel lblPrioridadEstado = new JLabel("Prioridad: " + proyecto.getNombrePrioridad() + " | Estado: " + proyecto.getNombreEstado());
-        lblPrioridadEstado.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        lblPrioridadEstado.setFont(ConstantesUI.FUENTE_NORMAL);
         panelInfoIzquierda.add(lblNombreProyecto);
         panelInfoIzquierda.add(Box.createVerticalStrut(5));
         panelInfoIzquierda.add(lblPrioridadEstado);
 
-        // --- Panel Central Superior: Lista de Usuarios ---
-        JPanel panelUsuarios = new JPanel(new BorderLayout());
+        // Centro: Lista de usuarios
         listModelUsuariosProyecto = new DefaultListModel<>();
-        listaUsuariosProyecto = new JList<>(listModelUsuariosProyecto);
-        panelUsuarios.add(new JLabel("Usuarios Designados:"), BorderLayout.NORTH);
-        panelUsuarios.add(new JScrollPane(listaUsuariosProyecto), BorderLayout.CENTER);
+        JList<Usuario> listaUsuariosProyecto = new JList<>(listModelUsuariosProyecto);
+        listaUsuariosProyecto.setFont(ConstantesUI.FUENTE_NORMAL);
+        JScrollPane scrollUsuarios = new JScrollPane(listaUsuariosProyecto);
+        scrollUsuarios.setBorder(ConstantesUI.BORDE_TITULO("Equipo Designado"));
 
-        // --- Panel Derecho Superior: Avance y Botón ---
-        JPanel panelInfoDerecha = new JPanel(new BorderLayout(10, 5));
-        progressBarProyecto = new JProgressBar(0, 100);
-        BigDecimal avance = proyecto.getPorcentajeAvance();
-        int progressValue = (avance != null) ? avance.intValue() : 0;
+        // Derecha: Avance y botón
+        JPanel panelInfoDerecha = new JPanel(new BorderLayout(10, 10));
+        panelInfoDerecha.setOpaque(false);
+        JProgressBar progressBarProyecto = new JProgressBar(0, 100);
+        int progressValue = (proyecto.getPorcentajeAvance() != null) ? proyecto.getPorcentajeAvance().intValue() : 0;
         progressBarProyecto.setValue(progressValue);
         progressBarProyecto.setStringPainted(true);
         progressBarProyecto.setString("Avance: " + progressValue + "%");
         btnVolverAProyectos = new JButton("Volver a Proyectos");
-        panelInfoDerecha.add(progressBarProyecto, BorderLayout.NORTH);
-        panelInfoDerecha.add(btnVolverAProyectos, BorderLayout.SOUTH);
+        TemaPersonalizado.aplicarEstiloBotonSecundario(btnVolverAProyectos);
+        panelInfoDerecha.add(new JLabel("Progreso General:"), BorderLayout.NORTH);
+        panelInfoDerecha.add(progressBarProyecto, BorderLayout.CENTER);
 
-        // Añadir sub-paneles al panel superior
         panelSuperior.add(panelInfoIzquierda, BorderLayout.WEST);
-        panelSuperior.add(panelUsuarios, BorderLayout.CENTER);
+        panelSuperior.add(scrollUsuarios, BorderLayout.CENTER);
         panelSuperior.add(panelInfoDerecha, BorderLayout.EAST);
-        add(panelSuperior, BorderLayout.NORTH);
 
-        // --- Panel Central: Tareas ---
+        JPanel panelContenedorSuperior = new JPanel(new BorderLayout());
+        panelContenedorSuperior.setOpaque(false);
+        panelContenedorSuperior.add(panelSuperior, BorderLayout.CENTER);
+        panelContenedorSuperior.add(btnVolverAProyectos, BorderLayout.SOUTH);
+
+        add(panelContenedorSuperior, BorderLayout.NORTH);
+
+        // Panel Central: Tareas
         JPanel panelCentral = new JPanel(new BorderLayout(10, 10));
-        panelCentral.setBorder(BorderFactory.createTitledBorder("Tareas del Proyecto"));
+        panelCentral.setBorder(ConstantesUI.BORDE_TITULO("Tareas del Proyecto"));
+        panelCentral.setOpaque(false);
 
-        // Panel de Filtros de Tareas
         JPanel panelFiltrosTareas = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-
+        panelFiltrosTareas.setOpaque(false);
         btnVistaListaTareas = new JToggleButton("Lista", true);
         btnVistaKanbanTareas = new JToggleButton("Kanban");
+        TemaPersonalizado.aplicarEstiloBotonAlternar(btnVistaListaTareas);
+        TemaPersonalizado.aplicarEstiloBotonAlternar(btnVistaKanbanTareas);
         ButtonGroup grupoVistasTareas = new ButtonGroup();
         grupoVistasTareas.add(btnVistaListaTareas);
         grupoVistasTareas.add(btnVistaKanbanTareas);
 
         comboFiltroPrioridadTareas = new JComboBox<>();
+        comboFiltroPrioridadTareas.setFont(ConstantesUI.FUENTE_NORMAL);
         Prioridad todasTareas = new Prioridad();
         todasTareas.setIdPrioridad(0);
         todasTareas.setNombrePrioridad("Todas");
         comboFiltroPrioridadTareas.addItem(todasTareas);
-        for (Prioridad p : prioridadesDisponibles) {
-            comboFiltroPrioridadTareas.addItem(p);
-        }
+        prioridadesDisponibles.forEach(comboFiltroPrioridadTareas::addItem);
 
         txtBusquedaTareas = new JTextField(20);
+        txtBusquedaTareas.setFont(ConstantesUI.FUENTE_NORMAL);
 
         panelFiltrosTareas.add(new JLabel("Vista Tareas:"));
         panelFiltrosTareas.add(btnVistaListaTareas);
         panelFiltrosTareas.add(btnVistaKanbanTareas);
         panelFiltrosTareas.add(new JSeparator(SwingConstants.VERTICAL));
-        panelFiltrosTareas.add(new JLabel("Filtrar por Prioridad:"));
+        panelFiltrosTareas.add(new JLabel("Prioridad:"));
         panelFiltrosTareas.add(comboFiltroPrioridadTareas);
         panelFiltrosTareas.add(new JSeparator(SwingConstants.VERTICAL));
         panelFiltrosTareas.add(new JLabel("Buscar Tarea:"));
         panelFiltrosTareas.add(txtBusquedaTareas);
-
         panelCentral.add(panelFiltrosTareas, BorderLayout.NORTH);
 
-        // Panel de Contenido Principal de Tareas con CardLayout
+        // Kanban de tareas
         panelContenedorPrincipalTareas = new JPanel(new CardLayout());
-
+        panelContenedorPrincipalTareas.setOpaque(false);
         panelContenidoListaTareas = new JPanel();
         panelContenidoListaTareas.setLayout(new BoxLayout(panelContenidoListaTareas, BoxLayout.Y_AXIS));
+        panelContenidoListaTareas.setOpaque(false);
 
-        panelContenidoKanbanTareas = new JPanel(new GridLayout(1, 5, 10, 10));
+        JPanel panelContenidoKanbanTareas = new JPanel(new GridLayout(1, 5, 10, 10));
+        panelContenidoKanbanTareas.setOpaque(false);
         columnasKanbanTareas = new HashMap<>();
         String[] nombresColumnasTareas = {"POR HACER", "EN PROGRESO", "EN REVISIÓN", "BLOQUEADO", "HECHO"};
         for (String nombreColumna : nombresColumnasTareas) {
             JPanel columna = new JPanel();
             columna.setLayout(new BoxLayout(columna, BoxLayout.Y_AXIS));
             columna.setBorder(BorderFactory.createTitledBorder(nombreColumna));
+            TemaPersonalizado.aplicarEstiloColumnaKanban(columna);
             columnasKanbanTareas.put(nombreColumna, columna);
-            panelContenidoKanbanTareas.add(new JScrollPane(columna));
+            JScrollPane scroll = new JScrollPane(columna);
+            scroll.setBorder(null);
+            scroll.getViewport().setOpaque(false);
+            panelContenidoKanbanTareas.add(scroll);
         }
 
         panelContenedorPrincipalTareas.add(new JScrollPane(panelContenidoListaTareas), "ListaTareas");
         panelContenedorPrincipalTareas.add(panelContenidoKanbanTareas, "KanbanTareas");
-
         panelCentral.add(panelContenedorPrincipalTareas, BorderLayout.CENTER);
+
         add(panelCentral, BorderLayout.CENTER);
     }
 

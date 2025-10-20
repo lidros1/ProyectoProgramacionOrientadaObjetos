@@ -1,3 +1,4 @@
+// Archivo: src/vista/CrearUsuarioVista.java
 package vista;
 
 import modelo.AreaSistema;
@@ -14,62 +15,81 @@ public class CrearUsuarioVista extends JFrame {
     private JTextField txtMail;
     private JButton btnCrear;
     private JButton btnVolver;
-    private JPanel panelPermisos;
     private Map<String, JCheckBox> checkboxesPermisos;
 
     public CrearUsuarioVista(List<AreaSistema> areas, List<Funcion> funciones) {
         setTitle("Crear Nuevo Usuario");
-        setSize(500, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        TemaPersonalizado.configurarVentana(this);
         setLayout(new BorderLayout(10, 10));
 
         checkboxesPermisos = new HashMap<>();
 
         // Panel de datos del usuario
         JPanel panelDatos = new JPanel(new GridBagLayout());
-        panelDatos.setBorder(BorderFactory.createTitledBorder("Datos del Usuario"));
+        panelDatos.setBorder(ConstantesUI.BORDE_TITULO("Datos del Usuario"));
+        panelDatos.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
 
-        gbc.gridx = 0; gbc.gridy = 0; panelDatos.add(new JLabel("Nombre de Usuario:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 0; txtNombreUsuario = new JTextField(20); panelDatos.add(txtNombreUsuario, gbc);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.2; panelDatos.add(new JLabel("Nombre de Usuario:"), gbc);
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.8; txtNombreUsuario = new JTextField(20); txtNombreUsuario.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtNombreUsuario, gbc);
 
         gbc.gridx = 0; gbc.gridy = 1; panelDatos.add(new JLabel("Contraseña:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 1; txtContrasena = new JPasswordField(20); panelDatos.add(txtContrasena, gbc);
+        gbc.gridx = 1; gbc.gridy = 1; txtContrasena = new JPasswordField(20); txtContrasena.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtContrasena, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2; panelDatos.add(new JLabel("Email:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 2; txtMail = new JTextField(20); panelDatos.add(txtMail, gbc);
-
-        add(panelDatos, BorderLayout.NORTH);
+        gbc.gridx = 1; gbc.gridy = 2; txtMail = new JTextField(20); txtMail.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtMail, gbc);
 
         // Panel de permisos dinámico
-        panelPermisos = new JPanel();
+        JPanel panelPermisos = new JPanel();
         panelPermisos.setLayout(new BoxLayout(panelPermisos, BoxLayout.Y_AXIS));
-        panelPermisos.setBorder(BorderFactory.createTitledBorder("Permisos"));
+        panelPermisos.setBorder(ConstantesUI.BORDE_TITULO("Permisos"));
+        panelPermisos.setOpaque(false);
 
         for (AreaSistema area : areas) {
             JPanel panelArea = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            panelArea.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-            panelArea.add(new JLabel("<html><b>" + area.getNombreAreaSistema() + "</b></html>"));
+            panelArea.setOpaque(false);
+            panelArea.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, ConstantesUI.COLOR_BORDE));
+            JLabel lblArea = new JLabel("<html><b>" + area.getNombreAreaSistema() + "</b></html>");
+            lblArea.setFont(ConstantesUI.FUENTE_NORMAL);
+            panelArea.add(lblArea);
             for (Funcion funcion : funciones) {
                 String key = area.getIdAreaSistema() + "-" + funcion.getIdFuncion();
                 JCheckBox checkBox = new JCheckBox(funcion.getNombreFuncion());
+                checkBox.setFont(ConstantesUI.FUENTE_NORMAL);
+                checkBox.setOpaque(false);
                 checkboxesPermisos.put(key, checkBox);
                 panelArea.add(checkBox);
             }
             panelPermisos.add(panelArea);
         }
 
-        add(new JScrollPane(panelPermisos), BorderLayout.CENTER);
+        JScrollPane scrollPermisos = new JScrollPane(panelPermisos);
+        scrollPermisos.setBorder(null);
+        scrollPermisos.getViewport().setOpaque(false);
+
+        JPanel panelCentral = new JPanel(new BorderLayout(10,10));
+        panelCentral.setOpaque(false);
+        panelCentral.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        panelCentral.add(panelDatos, BorderLayout.NORTH);
+        panelCentral.add(scrollPermisos, BorderLayout.CENTER);
+
+        add(panelCentral, BorderLayout.CENTER);
 
         // Panel de botones
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15));
+        panelBotones.setOpaque(false);
         btnCrear = new JButton("Crear Usuario");
         btnVolver = new JButton("Volver");
-        panelBotones.add(btnCrear);
+        TemaPersonalizado.aplicarEstiloBotonPrincipal(btnCrear);
+        TemaPersonalizado.aplicarEstiloBotonSecundario(btnVolver);
         panelBotones.add(btnVolver);
+        panelBotones.add(btnCrear);
         add(panelBotones, BorderLayout.SOUTH);
     }
 
