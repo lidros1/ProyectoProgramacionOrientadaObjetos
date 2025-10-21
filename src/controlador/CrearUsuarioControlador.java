@@ -1,3 +1,4 @@
+// Archivo: src/controlador/CrearUsuarioControlador.java
 package controlador;
 
 import modelo.Permiso;
@@ -46,14 +47,13 @@ public class CrearUsuarioControlador implements ActionListener {
     private void crearUsuario() {
         String nombre = vista.getTxtNombreUsuario().getText().trim();
         String contrasena = new String(vista.getTxtContrasena().getPassword()).trim();
-        String mail = vista.getTxtMail().getText().trim();
 
-        if (nombre.isEmpty() || contrasena.isEmpty() || mail.isEmpty()) {
-            JOptionPane.showMessageDialog(vista, "Todos los campos son obligatorios.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (nombre.isEmpty() || contrasena.isEmpty()) {
+            JOptionPane.showMessageDialog(vista, "El nombre de usuario y la contraseña son obligatorios.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        Usuario nuevoUsuario = new Usuario(nombre, contrasena, mail);
+        Usuario nuevoUsuario = new Usuario(nombre, contrasena);
         int nuevoUsuarioId = usuarioDAO.insertarYObtenerId(nuevoUsuario);
 
         if (nuevoUsuarioId != -1) {
@@ -65,7 +65,7 @@ public class CrearUsuarioControlador implements ActionListener {
             JOptionPane.showMessageDialog(vista, "Usuario creado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             limpiarFormulario();
         } else {
-            JOptionPane.showMessageDialog(vista, "Error al crear el usuario. El nombre de usuario o email ya podría existir.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(vista, "Error al crear el usuario. El nombre de usuario ya podría existir.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -91,7 +91,6 @@ public class CrearUsuarioControlador implements ActionListener {
     private void limpiarFormulario() {
         vista.getTxtNombreUsuario().setText("");
         vista.getTxtContrasena().setText("");
-        vista.getTxtMail().setText("");
         for (JCheckBox checkBox : vista.getCheckboxesPermisos().values()) {
             checkBox.setSelected(false);
         }

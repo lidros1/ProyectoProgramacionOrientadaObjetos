@@ -1,3 +1,4 @@
+// Archivo: src/modelo/Usuario.java
 package modelo;
 
 import java.util.Date;
@@ -9,7 +10,6 @@ public class Usuario {
     private int idUsuario;
     private String nombreUsuario;
     private String contrasena;
-    private String mail;
     private Date fechaCreacion;
     private Date fechaUltimoAcceso;
     private String estado;
@@ -19,11 +19,10 @@ public class Usuario {
         this.permisos = new ArrayList<>();
     }
 
-    public Usuario(String nombreUsuario, String contrasena, String mail) {
+    public Usuario(String nombreUsuario, String contrasena) {
         this();
         this.nombreUsuario = nombreUsuario;
         this.contrasena = contrasena;
-        this.mail = mail;
     }
 
     // Getters y Setters
@@ -33,8 +32,6 @@ public class Usuario {
     public void setNombreUsuario(String nombreUsuario) { this.nombreUsuario = nombreUsuario; }
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
-    public String getMail() { return mail; }
-    public void setMail(String mail) { this.mail = mail; }
     public Date getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(Date fechaCreacion) { this.fechaCreacion = fechaCreacion; }
     public Date getFechaUltimoAcceso() { return fechaUltimoAcceso; }
@@ -63,7 +60,6 @@ public class Usuario {
 
     @Override
     public String toString() {
-        // Asegúrate de que esto devuelve el nombre para el JList.
         return nombreUsuario;
     }
 }

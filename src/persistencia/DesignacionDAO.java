@@ -1,3 +1,4 @@
+// Archivo: src/persistencia/DesignacionDAO.java
 package persistencia;
 
 import modelo.Usuario;
@@ -15,7 +16,7 @@ public class DesignacionDAO {
 
     public List<Usuario> listarUsuariosDesignadosAProyecto(int idProyecto) {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT u.IDUsuario, u.nombreUsuario, u.Mail " +
+        String sql = "SELECT u.IDUsuario, u.nombreUsuario " +
                 "FROM designacionproyectos dp " +
                 "JOIN usuarios u ON dp.IDUsuario = u.IDUsuario " +
                 "WHERE dp.IDProyecto = ? AND dp.Estado = 'Activo' AND u.Estado = 'Activo'";
@@ -27,7 +28,6 @@ public class DesignacionDAO {
                     Usuario usuario = new Usuario();
                     usuario.setIdUsuario(rs.getInt("IDUsuario"));
                     usuario.setNombreUsuario(rs.getString("nombreUsuario"));
-                    usuario.setMail(rs.getString("Mail"));
                     usuarios.add(usuario);
                 }
             }
@@ -39,7 +39,7 @@ public class DesignacionDAO {
 
     public List<Usuario> listarUsuariosDesignadosATarea(int idTarea) {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT u.IDUsuario, u.nombreUsuario, u.Mail " +
+        String sql = "SELECT u.IDUsuario, u.nombreUsuario " +
                 "FROM designacionusuariostareas dut " +
                 "JOIN usuarios u ON dut.IDUsuario = u.IDUsuario " +
                 "WHERE dut.IDTarea = ? AND dut.Estado = 'Activo' AND u.Estado = 'Activo'";
@@ -51,7 +51,6 @@ public class DesignacionDAO {
                     Usuario usuario = new Usuario();
                     usuario.setIdUsuario(rs.getInt("IDUsuario"));
                     usuario.setNombreUsuario(rs.getString("nombreUsuario"));
-                    usuario.setMail(rs.getString("Mail"));
                     usuarios.add(usuario);
                 }
             }

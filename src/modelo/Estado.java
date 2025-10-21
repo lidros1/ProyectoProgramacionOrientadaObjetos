@@ -1,3 +1,4 @@
+// Archivo: src/modelo/Estado.java
 package modelo;
 
 public class Estado {
@@ -5,6 +6,16 @@ public class Estado {
     private String nombreEstado;
     private String descripcionEstado;
 
+    // --- CONSTRUCTOR VACÍO (EXISTENTE) ---
+    public Estado() {}
+
+    // --- CONSTRUCTOR AÑADIDO PARA SOLUCIONAR EL ERROR ---
+    public Estado(int idEstado, String nombreEstado) {
+        this.idEstado = idEstado;
+        this.nombreEstado = nombreEstado;
+    }
+
+    // --- Getters y Setters (existentes) ---
     public int getIdEstado() { return idEstado; }
     public void setIdEstado(int idEstado) { this.idEstado = idEstado; }
     public String getNombreEstado() { return nombreEstado; }

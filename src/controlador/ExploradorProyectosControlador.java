@@ -1,3 +1,4 @@
+// Archivo: src/controlador/ExploradorProyectosControlador.java
 package controlador;
 
 import modelo.Estado;
@@ -47,7 +48,7 @@ public class ExploradorProyectosControlador implements ActionListener {
             } else {
                 this.todosLosProyectos = proyectoDAO.listarProyectosPorUsuario(idUsuarioLogueado);
             }
-        } else {
+        } else { // Para EDITAR y EDITAR_TAREA, necesitamos todos los proyectos
             this.todosLosProyectos = proyectoDAO.listarTodosLosProyectos();
         }
 
@@ -125,43 +126,42 @@ public class ExploradorProyectosControlador implements ActionListener {
     }
 
     private TarjetaProyectoPanel crearTarjeta(Proyecto proyecto) {
-        boolean esEditable = "EDITAR".equals(modo);
-        TarjetaProyectoPanel tarjeta = new TarjetaProyectoPanel(proyecto, esEditable);
+        boolean esEditableProyecto = "EDITAR".equals(modo);
+        TarjetaProyectoPanel tarjeta = new TarjetaProyectoPanel(proyecto, esEditableProyecto);
 
         tarjeta.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (tarjeta.getBtnEditar() == null || e.getSource() != tarjeta.getBtnEditar()) {
-                    boolean edicionDeTareasActivada = "EDITAR".equals(modo);
-                    abrirVistaDeDetalle(proyecto, edicionDeTareasActivada);
+                if (tarjeta.getBtnEditar() != null && tarjeta.getBtnEditar().getBounds().contains(e.getPoint())) {
+                    return;
+                }
+
+                switch (modo) {
+                    case "EDITAR":
+                        abrirDialogoEdicionProyecto(proyecto);
+                        break;
+                    case "VER":
+                        abrirVistaDeDetalle(proyecto, false);
+                        break;
+                    case "EDITAR_TAREA":
+                        abrirVistaDeDetalle(proyecto, true);
+                        break;
                 }
             }
         });
 
-        if (esEditable && tarjeta.getBtnEditar() != null) {
-            tarjeta.getBtnEditar().addActionListener(e -> abrirDialogoEdicion(proyecto));
+        if (esEditableProyecto && tarjeta.getBtnEditar() != null) {
+            tarjeta.getBtnEditar().addActionListener(e -> abrirDialogoEdicionProyecto(proyecto));
         }
         return tarjeta;
     }
 
-    private void abrirDialogoEdicion(Proyecto proyecto) {
-        // --- USO DEL NUEVO LOOKUP DAO ---
+    private void abrirDialogoEdicionProyecto(Proyecto proyecto) {
         LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
-        List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> {
-            Prioridad p = new Prioridad();
-            p.setIdPrioridad(rs.getInt("IDPrioridad"));
-            p.setNombrePrioridad(rs.getString("NombrePrioridad"));
-            return p;
-        });
+        List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> new Prioridad(rs.getInt("IDPrioridad"), rs.getString("NombrePrioridad")));
 
         LookupDAO<Estado> estadoLookup = new LookupDAO<>();
-        List<Estado> estados = estadoLookup.listarTodos("estados", rs -> {
-            Estado est = new Estado();
-            est.setIdEstado(rs.getInt("IDEstado"));
-            est.setNombreEstado(rs.getString("NombreEstado"));
-            return est;
-        });
-        // --------------------------------
+        List<Estado> estados = estadoLookup.listarTodos("estados", rs -> new Estado(rs.getInt("IDEstado"), rs.getString("NombreEstado")));
 
         DialogoEditarProyecto dialogo = new DialogoEditarProyecto(vista, proyecto, prioridades, estados);
         dialogo.setVisible(true);
@@ -182,12 +182,7 @@ public class ExploradorProyectosControlador implements ActionListener {
     private void abrirVistaDeDetalle(Proyecto proyecto, boolean modoEdicionTareas) {
         vista.setVisible(false);
         LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
-        List<Prioridad> prioridadesDisponibles = prioridadLookup.listarTodos("prioridades", rs -> {
-            Prioridad p = new Prioridad();
-            p.setIdPrioridad(rs.getInt("IDPrioridad"));
-            p.setNombrePrioridad(rs.getString("NombrePrioridad"));
-            return p;
-        });
+        List<Prioridad> prioridadesDisponibles = prioridadLookup.listarTodos("prioridades", rs -> new Prioridad(rs.getInt("IDPrioridad"), rs.getString("NombrePrioridad")));
 
         ProyectoDetalleVista proyectoDetalleVista = new ProyectoDetalleVista(proyecto, prioridadesDisponibles);
         ProyectoDetalleControlador detalleControlador = new ProyectoDetalleControlador(proyectoDetalleVista, vista, modoEdicionTareas);

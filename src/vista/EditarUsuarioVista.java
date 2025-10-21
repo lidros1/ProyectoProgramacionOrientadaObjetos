@@ -17,7 +17,7 @@ public class EditarUsuarioVista extends JFrame {
     private JPanel panelEdicion;
     private JTextField txtNombreUsuario;
     private JPasswordField txtContrasena;
-    private JTextField txtMail;
+    private JComboBox<String> comboActivo;
     private Map<String, JCheckBox> checkboxesPermisos;
     private JButton btnGuardar;
     private JButton btnVolver;
@@ -58,11 +58,15 @@ public class EditarUsuarioVista extends JFrame {
         gbc.gridx = 0; gbc.gridy = 0; panelDatos.add(new JLabel("Nombre:"), gbc);
         gbc.gridx = 1; gbc.gridy = 0; txtNombreUsuario = new JTextField(20); txtNombreUsuario.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtNombreUsuario, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; panelDatos.add(new JLabel("Email:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 1; txtMail = new JTextField(20); txtMail.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtMail, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; panelDatos.add(new JLabel("Nueva Contraseña (opcional):"), gbc);
+        gbc.gridx = 1; gbc.gridy = 1; txtContrasena = new JPasswordField(20); txtContrasena.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtContrasena, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 2; panelDatos.add(new JLabel("Nueva Contraseña (opcional):"), gbc);
-        gbc.gridx = 1; gbc.gridy = 2; txtContrasena = new JPasswordField(20); txtContrasena.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtContrasena, gbc);
+        gbc.gridx = 0; gbc.gridy = 2; panelDatos.add(new JLabel("Estado:"), gbc);
+        gbc.gridx = 1; gbc.gridy = 2;
+        comboActivo = new JComboBox<>(new String[]{"Activo", "Inactivo"});
+        comboActivo.setFont(ConstantesUI.FUENTE_NORMAL);
+        panelDatos.add(comboActivo, gbc);
+
         panelEdicion.add(panelDatos, BorderLayout.NORTH);
 
         // Permisos
@@ -121,7 +125,7 @@ public class EditarUsuarioVista extends JFrame {
     public JPanel getPanelEdicion() { return panelEdicion; }
     public JTextField getTxtNombreUsuario() { return txtNombreUsuario; }
     public JPasswordField getTxtContrasena() { return txtContrasena; }
-    public JTextField getTxtMail() { return txtMail; }
+    public JComboBox<String> getComboActivo() { return comboActivo; }
     public Map<String, JCheckBox> getCheckboxesPermisos() { return checkboxesPermisos; }
     public JButton getBtnGuardar() { return btnGuardar; }
     public JButton getBtnVolver() { return btnVolver; }

@@ -26,6 +26,7 @@ public class DialogoEditarTarea extends JDialog {
     private JDatePickerImpl datePickerFin;
     private JComboBox<Prioridad> comboPrioridad;
     private JComboBox<Estado> comboEstado;
+    private JComboBox<String> comboActivo;
     private JList<Usuario> listaUsuariosDisponibles;
     private JList<Usuario> listaUsuariosAsignados;
     private JButton btnGuardar, btnCancelar;
@@ -36,13 +37,11 @@ public class DialogoEditarTarea extends JDialog {
         super(owner, "Editar Tarea", ModalityType.APPLICATION_MODAL);
         this.tarea = tarea;
 
-        // --- SOLUCIÓN: Tamaño más grande para el diálogo ---
-        setSize(800, 600);
+        setSize(800, 650);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(ConstantesUI.COLOR_FONDO_PRINCIPAL);
 
-        // Panel de datos básicos
         JPanel panelDatos = new JPanel(new GridBagLayout());
         panelDatos.setBorder(ConstantesUI.BORDE_TITULO("Datos de la Tarea"));
         panelDatos.setOpaque(false);
@@ -58,22 +57,30 @@ public class DialogoEditarTarea extends JDialog {
         p.put("text.today", "Hoy"); p.put("text.month", "Mes"); p.put("text.year", "Año");
 
         gbc.gridx = 0; gbc.gridy = 1; panelDatos.add(new JLabel("Fecha Inicio:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 1; datePickerInicio = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(tarea.getFechaInicio()), p), new DialogoEditarProyecto.DateLabelFormatter()); panelDatos.add(datePickerInicio, gbc);
+        gbc.gridx = 1; gbc.gridy = 1; datePickerInicio = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(tarea.getFechaInicio()), p), new FormateadorFecha()); // <-- CAMBIO AQUÍ
+        panelDatos.add(datePickerInicio, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2; panelDatos.add(new JLabel("Fecha Fin Estimada:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 2; datePickerFin = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(tarea.getFechaFinalEstimada()), p), new DialogoEditarProyecto.DateLabelFormatter()); panelDatos.add(datePickerFin, gbc);
+        gbc.gridx = 1; gbc.gridy = 2; datePickerFin = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(tarea.getFechaFinalEstimada()), p), new FormateadorFecha()); // <-- CAMBIO AQUÍ
+        panelDatos.add(datePickerFin, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3; panelDatos.add(new JLabel("Prioridad:"), gbc);
         gbc.gridx = 1; gbc.gridy = 3; comboPrioridad = new JComboBox<>(new Vector<>(prioridades)); comboPrioridad.setFont(ConstantesUI.FUENTE_NORMAL);
         prioridades.stream().filter(pr -> pr.getIdPrioridad() == tarea.getIdPrioridad()).findFirst().ifPresent(comboPrioridad::setSelectedItem);
         panelDatos.add(comboPrioridad, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 4; panelDatos.add(new JLabel("Estado:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 4; panelDatos.add(new JLabel("Estado (Flujo):"), gbc);
         gbc.gridx = 1; gbc.gridy = 4; comboEstado = new JComboBox<>(new Vector<>(estados)); comboEstado.setFont(ConstantesUI.FUENTE_NORMAL);
         estados.stream().filter(es -> es.getIdEstado() == tarea.getIdEstado()).findFirst().ifPresent(comboEstado::setSelectedItem);
         panelDatos.add(comboEstado, gbc);
 
-        // Panel de asignación de usuarios
+        gbc.gridx = 0; gbc.gridy = 5; panelDatos.add(new JLabel("Estado (Registro):"), gbc);
+        gbc.gridx = 1; gbc.gridy = 5;
+        comboActivo = new JComboBox<>(new String[]{"Activo", "Inactivo"});
+        comboActivo.setFont(ConstantesUI.FUENTE_NORMAL);
+        comboActivo.setSelectedItem(tarea.getEstado());
+        panelDatos.add(comboActivo, gbc);
+
         JPanel panelUsuarios = new JPanel(new GridLayout(1, 2, 10, 10));
         panelUsuarios.setBorder(ConstantesUI.BORDE_TITULO("Asignar Usuarios (Doble Clic)"));
         panelUsuarios.setOpaque(false);
@@ -95,7 +102,6 @@ public class DialogoEditarTarea extends JDialog {
         panelUsuarios.add(new JScrollPane(listaUsuariosDisponibles));
         panelUsuarios.add(new JScrollPane(listaUsuariosAsignados));
 
-        // Listeners para mover usuarios
         listaUsuariosDisponibles.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getClickCount() == 2) moverUsuario(listaUsuariosDisponibles, listaUsuariosAsignados);
@@ -107,7 +113,6 @@ public class DialogoEditarTarea extends JDialog {
             }
         });
 
-        // Panel de botones
         JPanel panelAcciones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         panelAcciones.setOpaque(false);
         btnGuardar = new JButton("Guardar");
@@ -145,6 +150,10 @@ public class DialogoEditarTarea extends JDialog {
         if (comboPrioridad.getSelectedItem() instanceof Prioridad p) tarea.setIdPrioridad(p.getIdPrioridad());
         if (comboEstado.getSelectedItem() instanceof Estado est) tarea.setIdEstado(est.getIdEstado());
 
+        if (comboActivo.getSelectedItem() != null) {
+            tarea.setEstado((String) comboActivo.getSelectedItem());
+        }
+
         DefaultListModel<Usuario> modelAsignados = (DefaultListModel<Usuario>) listaUsuariosAsignados.getModel();
         List<Usuario> nuevosAsignados = new ArrayList<>();
         for (int i = 0; i < modelAsignados.getSize(); i++) nuevosAsignados.add(modelAsignados.getElementAt(i));
@@ -156,4 +165,6 @@ public class DialogoEditarTarea extends JDialog {
 
     public boolean isGuardado() { return guardado; }
     public Tarea getTareaActualizada() { return tarea; }
+
+    // --- SE ELIMINÓ LA CLASE INTERNA DateLabelFormatter ---
 }

@@ -1,3 +1,4 @@
+// Archivo: src/controlador/EditarUsuarioControlador.java
 package controlador;
 
 import modelo.Permiso;
@@ -27,7 +28,6 @@ public class EditarUsuarioControlador implements ActionListener {
         this.usuarioDAO = new UsuarioDAO();
         this.permisoDAO = new PermisoDAO();
 
-        // Listeners
         this.vista.getBtnGuardar().addActionListener(this);
         this.vista.getBtnVolver().addActionListener(this);
         this.vista.getTxtBuscar().getDocument().addDocumentListener(new DocumentListener() {
@@ -41,11 +41,10 @@ public class EditarUsuarioControlador implements ActionListener {
             }
         });
 
-        // Carga inicial y asegúrate de que el panel de edición esté visible pero vacío
         buscarUsuarios();
-        limpiarPanelEdicion(); // Limpiar el contenido al inicio
-        this.vista.getPanelEdicion().setVisible(true); // Asegurar que el panel esté visible al inicio
-        this.vista.getSplitPane().setDividerLocation(250); // Establecer una división equilibrada al inicio
+        limpiarPanelEdicion();
+        this.vista.getPanelEdicion().setVisible(true);
+        this.vista.getSplitPane().setDividerLocation(350);
     }
 
     public void iniciar() {
@@ -68,30 +67,28 @@ public class EditarUsuarioControlador implements ActionListener {
         vista.getListModel().clear();
         usuarios.forEach(vista.getListModel()::addElement);
 
-        usuarioSeleccionado = null; // Deseleccionar usuario al buscar
-        limpiarPanelEdicion(); // Limpiar el panel de edición al buscar
-        // No ocultamos el panel, solo limpiamos su contenido
-        this.vista.getSplitPane().setDividerLocation(250); // Restaurar división equilibrada
+        usuarioSeleccionado = null;
+        limpiarPanelEdicion();
+        this.vista.getSplitPane().setDividerLocation(350);
     }
 
     private void cargarDatosUsuarioSeleccionado() {
         usuarioSeleccionado = vista.getListaResultados().getSelectedValue();
         if (usuarioSeleccionado == null) {
-            limpiarPanelEdicion(); // Limpiar si no hay selección
+            limpiarPanelEdicion();
             return;
         }
 
-        // Cargar datos básicos
         vista.getTxtNombreUsuario().setText(usuarioSeleccionado.getNombreUsuario());
         Usuario usuarioCompleto = usuarioDAO.obtenerUsuarioCompletoPorId(usuarioSeleccionado.getIdUsuario());
+
         if (usuarioCompleto != null) {
-            vista.getTxtMail().setText(usuarioCompleto.getMail());
+            vista.getComboActivo().setSelectedItem(usuarioCompleto.getEstado());
         } else {
-            vista.getTxtMail().setText("");
+            vista.getComboActivo().setSelectedIndex(0);
         }
         vista.getTxtContrasena().setText("");
 
-        // Cargar y marcar permisos
         List<Permiso> permisosActuales = permisoDAO.listarPermisosPorUsuario(usuarioSeleccionado.getIdUsuario());
         Map<String, JCheckBox> checkboxes = vista.getCheckboxesPermisos();
 
@@ -104,8 +101,8 @@ public class EditarUsuarioControlador implements ActionListener {
             }
         }
 
-        vista.getPanelEdicion().setVisible(true); // Asegurar que esté visible
-        vista.getSplitPane().setDividerLocation(280); // Ajustar división para ver el contenido de edición
+        vista.getPanelEdicion().setVisible(true);
+        vista.getSplitPane().setDividerLocation(350);
         vista.revalidate();
         vista.repaint();
     }
@@ -117,16 +114,15 @@ public class EditarUsuarioControlador implements ActionListener {
         }
 
         String nombre = vista.getTxtNombreUsuario().getText().trim();
-        String mail = vista.getTxtMail().getText().trim();
-        if (nombre.isEmpty() || mail.isEmpty()) {
-            JOptionPane.showMessageDialog(vista, "El nombre de usuario y el email no pueden estar vacíos.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(vista, "El nombre de usuario no puede estar vacío.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         usuarioSeleccionado.setNombreUsuario(nombre);
-        usuarioSeleccionado.setMail(mail);
         String nuevaContrasena = new String(vista.getTxtContrasena().getPassword()).trim();
         usuarioSeleccionado.setContrasena(nuevaContrasena);
+        usuarioSeleccionado.setEstado((String) vista.getComboActivo().getSelectedItem());
 
         boolean datosActualizados = usuarioDAO.actualizar(usuarioSeleccionado);
 
@@ -142,24 +138,21 @@ public class EditarUsuarioControlador implements ActionListener {
             }
         });
 
-        boolean permisosActualizados = permisoDAO.insertarPermisos(usuarioSeleccionado.getIdUsuario(), permisosNuevos);
+        boolean permisosActualizados = !permisosNuevos.isEmpty() ? permisoDAO.insertarPermisos(usuarioSeleccionado.getIdUsuario(), permisosNuevos) : true;
 
         if (datosActualizados && permisosActualizados) {
             JOptionPane.showMessageDialog(vista, "Usuario actualizado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             buscarUsuarios();
-            limpiarPanelEdicion(); // Limpiar el contenido del panel de edición
+            limpiarPanelEdicion();
         } else {
             JOptionPane.showMessageDialog(vista, "Error al actualizar el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /**
-     * Limpia los campos y checkboxes del panel de edición.
-     */
     private void limpiarPanelEdicion() {
         vista.getTxtNombreUsuario().setText("");
-        vista.getTxtMail().setText("");
         vista.getTxtContrasena().setText("");
+        vista.getComboActivo().setSelectedIndex(0);
         vista.getCheckboxesPermisos().values().forEach(cb -> cb.setSelected(false));
     }
 }

@@ -72,10 +72,12 @@ public class CrearTareaVista extends JFrame {
         Properties p = new Properties();
         p.put("text.today", "Hoy"); p.put("text.month", "Mes"); p.put("text.year", "Año");
         gbc.gridx = 0; gbc.gridy = 2; panelDetalles.add(new JLabel("Fecha Inicio:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 2; datePickerInicio = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(), p), new CrearProyectoVista.DateLabelFormatter()); panelDetalles.add(datePickerInicio, gbc);
+        gbc.gridx = 1; gbc.gridy = 2; datePickerInicio = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(), p), new FormateadorFecha()); // <-- CAMBIO AQUÍ
+        panelDetalles.add(datePickerInicio, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3; panelDetalles.add(new JLabel("Fecha Fin Estimada:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 3; datePickerFin = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(), p), new CrearProyectoVista.DateLabelFormatter()); panelDetalles.add(datePickerFin, gbc);
+        gbc.gridx = 1; gbc.gridy = 3; datePickerFin = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(), p), new FormateadorFecha()); // <-- CAMBIO AQUÍ
+        panelDetalles.add(datePickerFin, gbc);
 
         gbc.gridx = 0; gbc.gridy = 4; gbc.anchor = GridBagConstraints.NORTHWEST; panelDetalles.add(new JLabel("Comentario:"), gbc);
         gbc.gridx = 1; gbc.gridy = 4; gbc.fill = GridBagConstraints.BOTH; gbc.weighty = 0.4;

@@ -1,3 +1,4 @@
+// Archivo: src/modelo/Prioridad.java
 package modelo;
 
 public class Prioridad {
@@ -5,6 +6,16 @@ public class Prioridad {
     private String nombrePrioridad;
     private String descripcionPrioridad;
 
+    // --- CONSTRUCTOR VACÍO (EXISTENTE) ---
+    public Prioridad() {}
+
+    // --- CONSTRUCTOR AÑADIDO PARA SOLUCIONAR EL ERROR ---
+    public Prioridad(int idPrioridad, String nombrePrioridad) {
+        this.idPrioridad = idPrioridad;
+        this.nombrePrioridad = nombrePrioridad;
+    }
+
+    // --- Getters y Setters (existentes) ---
     public int getIdPrioridad() { return idPrioridad; }
     public void setIdPrioridad(int idPrioridad) { this.idPrioridad = idPrioridad; }
     public String getNombrePrioridad() { return nombrePrioridad; }

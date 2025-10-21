@@ -1,3 +1,4 @@
+// Archivo: src/persistencia/TareaDAO.java
 package persistencia;
 
 import modelo.Tarea;
@@ -56,11 +57,11 @@ public class TareaDAO {
     public List<Tarea> listarTareasPorProyecto(int idProyecto) {
         List<Tarea> tareas = new ArrayList<>();
         String sql = "SELECT t.IDTarea, t.NombreTarea, " + casePorcentajeAvance + ", t.FechaInicio, t.FechaFinalEstimada, " +
-                "e.NombreEstado, p.NombrePrioridad, t.IDProyecto, t.IDEstado, t.IDPrioridad " +
+                "e.NombreEstado, p.NombrePrioridad, t.IDProyecto, t.IDEstado, t.IDPrioridad, t.Estado " +
                 "FROM tareas t " +
                 "JOIN estados e ON t.IDEstado = e.IDEstado " +
                 "JOIN prioridades p ON t.IDPrioridad = p.IDPrioridad " +
-                "WHERE t.IDProyecto = ? AND t.Estado = 'Activo'";
+                "WHERE t.IDProyecto = ?"; // Mostramos todas para poder editarlas
         try (Connection conn = ConexionDataBase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, idProyecto);
@@ -77,6 +78,7 @@ public class TareaDAO {
                     tarea.setFechaFinalEstimada(rs.getDate("FechaFinalEstimada"));
                     tarea.setNombreEstado(rs.getString("NombreEstado"));
                     tarea.setNombrePrioridad(rs.getString("NombrePrioridad"));
+                    tarea.setEstado(rs.getString("Estado"));
                     tareas.add(tarea);
                 }
             }
@@ -103,7 +105,7 @@ public class TareaDAO {
     public List<Tarea> listarTodasTareasPorUsuario(int idUsuario) {
         List<Tarea> tareas = new ArrayList<>();
         String sql = "SELECT t.IDTarea, t.NombreTarea, " + casePorcentajeAvance + ", t.FechaInicio, t.FechaFinalEstimada, " +
-                "e.NombreEstado, p.NombrePrioridad, t.IDProyecto, t.IDEstado, t.IDPrioridad " +
+                "e.NombreEstado, p.NombrePrioridad, t.IDProyecto, t.IDEstado, t.IDPrioridad, t.Estado " +
                 "FROM tareas t " +
                 "JOIN designacionusuariostareas dut ON t.IDTarea = dut.IDTarea " +
                 "JOIN estados e ON t.IDEstado = e.IDEstado " +
@@ -125,6 +127,7 @@ public class TareaDAO {
                     tarea.setFechaFinalEstimada(rs.getDate("FechaFinalEstimada"));
                     tarea.setNombreEstado(rs.getString("NombreEstado"));
                     tarea.setNombrePrioridad(rs.getString("NombrePrioridad"));
+                    tarea.setEstado(rs.getString("Estado"));
                     tareas.add(tarea);
                 }
             }
@@ -142,7 +145,7 @@ public class TareaDAO {
                 "FROM tareas t " +
                 "JOIN estados e ON t.IDEstado = e.IDEstado " +
                 "JOIN prioridades p ON t.IDPrioridad = p.IDPrioridad " +
-                "WHERE t.IDTarea = ? AND t.Estado = 'Activo'";
+                "WHERE t.IDTarea = ?";
         try (Connection conn = ConexionDataBase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, idTarea);
@@ -174,7 +177,8 @@ public class TareaDAO {
                 "FechaInicio = ?, " +
                 "FechaFinalEstimada = ?, " +
                 "IDEstado = ?, " +
-                "IDPrioridad = ? " +
+                "IDPrioridad = ?, " +
+                "Estado = ? " +
                 "WHERE IDTarea = ?";
         try (Connection conn = ConexionDataBase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -184,7 +188,8 @@ public class TareaDAO {
             pstmt.setDate(3, tarea.getFechaFinalEstimada() != null ? new java.sql.Date(tarea.getFechaFinalEstimada().getTime()) : null);
             pstmt.setInt(4, tarea.getIdEstado());
             pstmt.setInt(5, tarea.getIdPrioridad());
-            pstmt.setInt(6, tarea.getIdTarea());
+            pstmt.setString(6, tarea.getEstado());
+            pstmt.setInt(7, tarea.getIdTarea());
 
             int filasAfectadas = pstmt.executeUpdate();
             return filasAfectadas > 0;
@@ -218,18 +223,13 @@ public class TareaDAO {
         return -1;
     }
 
-    /**
-     * Lista todas las tareas activas de todos los proyectos.
-     * @return Una lista de objetos Tarea.
-     */
     public List<Tarea> listarTodasLasTareas() {
         List<Tarea> tareas = new ArrayList<>();
         String sql = "SELECT t.IDTarea, t.NombreTarea, " + casePorcentajeAvance + ", t.FechaInicio, t.FechaFinalEstimada, " +
-                "e.NombreEstado, p.NombrePrioridad, t.IDProyecto, t.IDEstado, t.IDPrioridad " +
+                "e.NombreEstado, p.NombrePrioridad, t.IDProyecto, t.IDEstado, t.IDPrioridad, t.Estado " +
                 "FROM tareas t " +
                 "JOIN estados e ON t.IDEstado = e.IDEstado " +
-                "JOIN prioridades p ON t.IDPrioridad = p.IDPrioridad " +
-                "WHERE t.Estado = 'Activo'";
+                "JOIN prioridades p ON t.IDPrioridad = p.IDPrioridad";
         try (Connection conn = ConexionDataBase.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -246,6 +246,7 @@ public class TareaDAO {
                 tarea.setFechaFinalEstimada(rs.getDate("FechaFinalEstimada"));
                 tarea.setNombreEstado(rs.getString("NombreEstado"));
                 tarea.setNombrePrioridad(rs.getString("NombrePrioridad"));
+                tarea.setEstado(rs.getString("Estado"));
                 tareas.add(tarea);
             }
         } catch (SQLException e) {

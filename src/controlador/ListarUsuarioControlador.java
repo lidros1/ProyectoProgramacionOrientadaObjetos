@@ -1,3 +1,4 @@
+// Archivo: src/controlador/ListarUsuarioControlador.java
 package controlador;
 
 import modelo.Usuario;
@@ -9,8 +10,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Objects;
+import java.util.List; // <-- LÍNEA QUE FALTABA
 
 public class ListarUsuarioControlador implements ActionListener {
     private final ListarUsuarioVista vista;
@@ -22,7 +22,6 @@ public class ListarUsuarioControlador implements ActionListener {
         this.vistaAnterior = vistaAnterior;
         this.usuarioDAO = new UsuarioDAO();
 
-        // Listeners
         this.vista.getBtnVolver().addActionListener(this);
         this.vista.getTxtBuscar().getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -39,7 +38,6 @@ public class ListarUsuarioControlador implements ActionListener {
             }
         });
 
-        // Carga inicial
         buscarUsuarios();
     }
 
@@ -78,7 +76,6 @@ public class ListarUsuarioControlador implements ActionListener {
         if (usuarioCompleto != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             vista.getLblNombre().setText(usuarioCompleto.getNombreUsuario());
-            vista.getLblMail().setText(usuarioCompleto.getMail());
             vista.getLblFechaCreacion().setText(sdf.format(usuarioCompleto.getFechaCreacion()));
             vista.getLblUltimoAcceso().setText(
                     usuarioCompleto.getFechaUltimoAcceso() != null ? sdf.format(usuarioCompleto.getFechaUltimoAcceso()) : "Nunca"
@@ -88,7 +85,6 @@ public class ListarUsuarioControlador implements ActionListener {
 
     private void limpiarDetalles() {
         vista.getLblNombre().setText("-");
-        vista.getLblMail().setText("-");
         vista.getLblFechaCreacion().setText("-");
         vista.getLblUltimoAcceso().setText("-");
     }

@@ -1,3 +1,4 @@
+// Archivo: src/controlador/GestionTareasMenuControlador.java
 package controlador;
 
 import modelo.Prioridad;
@@ -8,6 +9,7 @@ import persistencia.ProyectoDAO;
 import persistencia.UsuarioDAO;
 import vista.AsignarTareaVista;
 import vista.CrearTareaVista;
+import vista.ExploradorProyectosVista;
 import vista.GestionTareasMenuVista;
 import vista.ListarTareaVista;
 
@@ -26,6 +28,7 @@ public class GestionTareasMenuControlador implements ActionListener {
 
         this.vista.getBtnCrearTarea().addActionListener(this);
         this.vista.getBtnListarTarea().addActionListener(this);
+        this.vista.getBtnEditarTarea().addActionListener(this);
         this.vista.getBtnAsignarTarea().addActionListener(this);
         this.vista.getBtnVolver().addActionListener(this);
     }
@@ -37,56 +40,60 @@ public class GestionTareasMenuControlador implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.getBtnCrearTarea()) {
-            vista.setVisible(false);
-            ProyectoDAO proyectoDAO = new ProyectoDAO();
-            UsuarioDAO usuarioDAO = new UsuarioDAO();
-
-            // --- USO DEL NUEVO LOOKUP DAO ---
-            LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
-            List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> {
-                Prioridad p = new Prioridad();
-                p.setIdPrioridad(rs.getInt("IDPrioridad"));
-                p.setNombrePrioridad(rs.getString("NombrePrioridad"));
-                return p;
-            });
-            // --------------------------------
-
-            List<Proyecto> proyectos = proyectoDAO.listarTodosLosProyectos();
-            List<Usuario> usuarios = usuarioDAO.listarTodos();
-
-            CrearTareaVista crearTareaVista = new CrearTareaVista(prioridades, usuarios);
-            CrearTareaControlador crearTareaControlador = new CrearTareaControlador(crearTareaVista, vista, proyectos);
-            crearTareaControlador.iniciar();
-
+            abrirCrearTarea();
         } else if (e.getSource() == vista.getBtnListarTarea()) {
-            vista.setVisible(false);
-            ProyectoDAO proyectoDAO = new ProyectoDAO();
-
-            // --- USO DEL NUEVO LOOKUP DAO ---
-            LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
-            List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> {
-                Prioridad p = new Prioridad();
-                p.setIdPrioridad(rs.getInt("IDPrioridad"));
-                p.setNombrePrioridad(rs.getString("NombrePrioridad"));
-                return p;
-            });
-            // --------------------------------
-
-            List<Proyecto> proyectos = proyectoDAO.listarTodosLosProyectos();
-
-            ListarTareaVista listarVista = new ListarTareaVista(prioridades, proyectos);
-            ListarTareaControlador listarControlador = new ListarTareaControlador(listarVista, vista);
-            listarControlador.iniciar();
-
+            abrirListarTarea();
+        } else if (e.getSource() == vista.getBtnEditarTarea()) {
+            abrirEditarTarea();
         } else if (e.getSource() == vista.getBtnAsignarTarea()) {
-            vista.setVisible(false);
-            AsignarTareaVista asignarVista = new AsignarTareaVista();
-            AsignarTareaControlador asignarControlador = new AsignarTareaControlador(asignarVista, vista);
-            asignarControlador.iniciar();
-
+            abrirAsignarTarea();
         } else if (e.getSource() == vista.getBtnVolver()) {
             vista.dispose();
             vistaAnterior.setVisible(true);
         }
+    }
+
+    private void abrirEditarTarea() {
+        vista.setVisible(false);
+        LookupDAO<Prioridad> lookupDAO = new LookupDAO<>();
+        List<Prioridad> prioridades = lookupDAO.listarTodos("prioridades", rs -> new Prioridad(rs.getInt("IDPrioridad"), rs.getString("NombrePrioridad")));
+
+        ExploradorProyectosVista exploradorVista = new ExploradorProyectosVista(prioridades);
+        exploradorVista.setTitle("Editar Tarea (Paso 1: Seleccionar Proyecto)");
+        ExploradorProyectosControlador exploradorControlador = new ExploradorProyectosControlador(exploradorVista, vista, "EDITAR_TAREA");
+        exploradorControlador.iniciar();
+    }
+
+    private void abrirCrearTarea() {
+        vista.setVisible(false);
+        ProyectoDAO proyectoDAO = new ProyectoDAO();
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
+        List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> new Prioridad(rs.getInt("IDPrioridad"), rs.getString("NombrePrioridad")));
+        List<Proyecto> proyectos = proyectoDAO.listarTodosLosProyectos();
+        List<Usuario> usuarios = usuarioDAO.listarTodos();
+
+        CrearTareaVista crearTareaVista = new CrearTareaVista(prioridades, usuarios);
+        CrearTareaControlador crearTareaControlador = new CrearTareaControlador(crearTareaVista, vista, proyectos);
+        crearTareaControlador.iniciar();
+    }
+
+    private void abrirListarTarea() {
+        vista.setVisible(false);
+        ProyectoDAO proyectoDAO = new ProyectoDAO();
+        LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
+        List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> new Prioridad(rs.getInt("IDPrioridad"), rs.getString("NombrePrioridad")));
+        List<Proyecto> proyectos = proyectoDAO.listarTodosLosProyectos();
+
+        ListarTareaVista listarVista = new ListarTareaVista(prioridades, proyectos);
+        ListarTareaControlador listarControlador = new ListarTareaControlador(listarVista, vista);
+        listarControlador.iniciar();
+    }
+
+    private void abrirAsignarTarea() {
+        vista.setVisible(false);
+        AsignarTareaVista asignarVista = new AsignarTareaVista();
+        AsignarTareaControlador asignarControlador = new AsignarTareaControlador(asignarVista, vista);
+        asignarControlador.iniciar();
     }
 }

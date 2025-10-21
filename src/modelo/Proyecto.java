@@ -1,3 +1,4 @@
+// Archivo: src/modelo/Proyecto.java
 package modelo;
 
 import java.math.BigDecimal;
@@ -13,11 +14,12 @@ public class Proyecto {
     private Date fechaInicio;
     private Date fechaFinalEstimada;
     private String nombreEstado;
-    private int idEstado; // <-- ATRIBUTO AÑADIDO
+    private int idEstado;
     private String nombrePrioridad;
     private int idPrioridad;
     private int idJerarquiaUsuario;
     private List<Usuario> usuariosDesignados;
+    private String estado; // <-- CAMPO AÑADIDO PARA 'Activo'/'Inactivo'
 
     public Proyecto() {
         this.usuariosDesignados = new ArrayList<>();
@@ -46,11 +48,13 @@ public class Proyecto {
     public void setIdPrioridad(int idPrioridad) { this.idPrioridad = idPrioridad; }
     public List<Usuario> getUsuariosDesignados() { return usuariosDesignados; }
     public void setUsuariosDesignados(List<Usuario> usuariosDesignados) { this.usuariosDesignados = usuariosDesignados; }
-
-    // --- MÉTODOS AÑADIDOS PARA CORREGIR EL ERROR ---
     public int getIdEstado() { return idEstado; }
     public void setIdEstado(int idEstado) { this.idEstado = idEstado; }
-    // ---------------------------------------------
+
+    // --- GETTER Y SETTER AÑADIDOS ---
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+    // ---------------------------------
 
     @Override
     public String toString() {

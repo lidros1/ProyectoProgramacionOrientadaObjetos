@@ -12,7 +12,6 @@ import java.util.HashMap;
 public class CrearUsuarioVista extends JFrame {
     private JTextField txtNombreUsuario;
     private JPasswordField txtContrasena;
-    private JTextField txtMail;
     private JButton btnCrear;
     private JButton btnVolver;
     private Map<String, JCheckBox> checkboxesPermisos;
@@ -41,9 +40,6 @@ public class CrearUsuarioVista extends JFrame {
 
         gbc.gridx = 0; gbc.gridy = 1; panelDatos.add(new JLabel("Contraseña:"), gbc);
         gbc.gridx = 1; gbc.gridy = 1; txtContrasena = new JPasswordField(20); txtContrasena.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtContrasena, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2; panelDatos.add(new JLabel("Email:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 2; txtMail = new JTextField(20); txtMail.setFont(ConstantesUI.FUENTE_NORMAL); panelDatos.add(txtMail, gbc);
 
         // Panel de permisos dinámico
         JPanel panelPermisos = new JPanel();
@@ -96,7 +92,6 @@ public class CrearUsuarioVista extends JFrame {
     // Getters
     public JTextField getTxtNombreUsuario() { return txtNombreUsuario; }
     public JPasswordField getTxtContrasena() { return txtContrasena; }
-    public JTextField getTxtMail() { return txtMail; }
     public JButton getBtnCrear() { return btnCrear; }
     public JButton getBtnVolver() { return btnVolver; }
     public Map<String, JCheckBox> getCheckboxesPermisos() { return checkboxesPermisos; }

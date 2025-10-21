@@ -1,3 +1,4 @@
+// Archivo: src/controlador/ProyectoDetalleControlador.java
 package controlador;
 
 import modelo.*;
@@ -158,23 +159,11 @@ public class ProyectoDetalleControlador implements ActionListener {
     }
 
     private void abrirDialogoEdicionTarea(Tarea tarea) {
-        // --- USO DEL NUEVO LOOKUP DAO ---
         LookupDAO<Prioridad> prioridadLookup = new LookupDAO<>();
-        List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> {
-            Prioridad p = new Prioridad();
-            p.setIdPrioridad(rs.getInt("IDPrioridad"));
-            p.setNombrePrioridad(rs.getString("NombrePrioridad"));
-            return p;
-        });
+        List<Prioridad> prioridades = prioridadLookup.listarTodos("prioridades", rs -> new Prioridad(rs.getInt("IDPrioridad"), rs.getString("NombrePrioridad")));
 
         LookupDAO<Estado> estadoLookup = new LookupDAO<>();
-        List<Estado> estados = estadoLookup.listarTodos("estados", rs -> {
-            Estado e = new Estado();
-            e.setIdEstado(rs.getInt("IDEstado"));
-            e.setNombreEstado(rs.getString("NombreEstado"));
-            return e;
-        });
-        // --------------------------------
+        List<Estado> estados = estadoLookup.listarTodos("estados", rs -> new Estado(rs.getInt("IDEstado"), rs.getString("NombreEstado")));
 
         List<Usuario> todosLosUsuarios = usuarioDAO.listarTodos();
         tarea.setUsuariosDesignados(designacionDAO.listarUsuariosDesignadosATarea(tarea.getIdTarea()));
@@ -185,12 +174,13 @@ public class ProyectoDetalleControlador implements ActionListener {
         if (dialogo.isGuardado()) {
             Tarea tareaActualizada = dialogo.getTareaActualizada();
             boolean exitoTarea = tareaDAO.actualizar(tareaActualizada);
-            boolean exitoDesignacion = designacionDAO.eliminarDesignacionesPorTarea(tareaActualizada.getIdTarea());
-            if (exitoDesignacion && !tareaActualizada.getUsuariosDesignados().isEmpty()) {
-                exitoDesignacion = designacionDAO.insertarDesignacionesTarea(tareaActualizada.getIdTarea(), tareaActualizada.getUsuariosDesignados());
+
+            designacionDAO.eliminarDesignacionesPorTarea(tareaActualizada.getIdTarea());
+            if (!tareaActualizada.getUsuariosDesignados().isEmpty()) {
+                designacionDAO.insertarDesignacionesTarea(tareaActualizada.getIdTarea(), tareaActualizada.getUsuariosDesignados());
             }
 
-            if (exitoTarea && exitoDesignacion) {
+            if (exitoTarea) {
                 JOptionPane.showMessageDialog(vista, "Tarea actualizada correctamente.");
                 refrescarListaDeTareas();
             } else {
@@ -201,12 +191,7 @@ public class ProyectoDetalleControlador implements ActionListener {
 
     private void abrirDialogoActualizarTarea(Tarea tarea) {
         LookupDAO<Estado> estadoLookup = new LookupDAO<>();
-        List<Estado> estados = estadoLookup.listarTodos("estados", rs -> {
-            Estado e = new Estado();
-            e.setIdEstado(rs.getInt("IDEstado"));
-            e.setNombreEstado(rs.getString("NombreEstado"));
-            return e;
-        });
+        List<Estado> estados = estadoLookup.listarTodos("estados", rs -> new Estado(rs.getInt("IDEstado"), rs.getString("NombreEstado")));
         DialogoActualizarTarea dialogo = new DialogoActualizarTarea(vista, tarea, estados);
 
         dialogo.getBtnPublicarComentario().addActionListener(e -> {

@@ -1,3 +1,4 @@
+// Archivo: src/persistencia/UsuarioDAO.java
 package persistencia;
 
 import modelo.Usuario;
@@ -13,7 +14,7 @@ public class UsuarioDAO {
 
     public List<Usuario> listarTodos() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT IDUsuario, nombreUsuario, Mail, Estado FROM usuarios WHERE Estado = 'Activo'";
+        String sql = "SELECT IDUsuario, nombreUsuario, Estado FROM usuarios";
         try (Connection conn = ConexionDataBase.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -21,7 +22,6 @@ public class UsuarioDAO {
                 Usuario usuario = new Usuario();
                 usuario.setIdUsuario(rs.getInt("IDUsuario"));
                 usuario.setNombreUsuario(rs.getString("nombreUsuario"));
-                usuario.setMail(rs.getString("Mail"));
                 usuario.setEstado(rs.getString("Estado"));
                 usuarios.add(usuario);
             }
@@ -31,28 +31,12 @@ public class UsuarioDAO {
         return usuarios;
     }
 
-    public boolean insertar(Usuario usuario) {
-        String sql = "INSERT INTO usuarios (nombreUsuario, contraseñaUsuario, Mail, Estado) VALUES (?, ?, ?, 'Activo')";
-        try (Connection conn = ConexionDataBase.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, usuario.getNombreUsuario());
-            pstmt.setString(2, usuario.getContrasena());
-            pstmt.setString(3, usuario.getMail());
-            int filas = pstmt.executeUpdate();
-            return filas > 0;
-        } catch (SQLException e) {
-            logger.severe("Error al insertar usuario: " + e.getMessage());
-            return false;
-        }
-    }
-
     public int insertarYObtenerId(Usuario usuario) {
-        String sql = "INSERT INTO usuarios (nombreUsuario, contraseñaUsuario, Mail, Estado) VALUES (?, ?, ?, 'Activo')";
+        String sql = "INSERT INTO usuarios (nombreUsuario, contraseñaUsuario, Estado) VALUES (?, ?, 'Activo')";
         try (Connection conn = ConexionDataBase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, usuario.getNombreUsuario());
             pstmt.setString(2, usuario.getContrasena());
-            pstmt.setString(3, usuario.getMail());
 
             int filasAfectadas = pstmt.executeUpdate();
 
@@ -69,13 +53,8 @@ public class UsuarioDAO {
         return -1;
     }
 
-    /**
-     * MODIFICADO: Actualiza los datos de un usuario.
-     * Si la contraseña en el objeto usuario está vacía o es nula, no se actualiza.
-     */
     public boolean actualizar(Usuario usuario) {
-        // Construcción dinámica de la consulta SQL
-        StringBuilder sql = new StringBuilder("UPDATE usuarios SET nombreUsuario = ?, Mail = ?");
+        StringBuilder sql = new StringBuilder("UPDATE usuarios SET nombreUsuario = ?, Estado = ?");
         if (usuario.getContrasena() != null && !usuario.getContrasena().isEmpty()) {
             sql.append(", contraseñaUsuario = ?");
         }
@@ -85,7 +64,7 @@ public class UsuarioDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 
             pstmt.setString(1, usuario.getNombreUsuario());
-            pstmt.setString(2, usuario.getMail());
+            pstmt.setString(2, usuario.getEstado());
 
             int parameterIndex = 3;
             if (usuario.getContrasena() != null && !usuario.getContrasena().isEmpty()) {
@@ -116,7 +95,7 @@ public class UsuarioDAO {
     }
 
     public Usuario validarUsuario(String nombreUsuario, String contraseña) {
-        String sql = "SELECT IDUsuario, nombreUsuario, Mail, Estado FROM usuarios WHERE nombreUsuario = ? AND contraseñaUsuario = ? AND Estado = 'Activo'";
+        String sql = "SELECT IDUsuario, nombreUsuario, Estado FROM usuarios WHERE nombreUsuario = ? AND contraseñaUsuario = ? AND Estado = 'Activo'";
         try (Connection conn = ConexionDataBase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, nombreUsuario);
@@ -126,7 +105,6 @@ public class UsuarioDAO {
                     Usuario usuario = new Usuario();
                     usuario.setIdUsuario(rs.getInt("IDUsuario"));
                     usuario.setNombreUsuario(rs.getString("nombreUsuario"));
-                    usuario.setMail(rs.getString("Mail"));
                     usuario.setEstado(rs.getString("Estado"));
                     return usuario;
                 }
@@ -152,7 +130,7 @@ public class UsuarioDAO {
 
     public List<Usuario> buscarPorNombre(String nombre) {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT IDUsuario, nombreUsuario FROM usuarios WHERE nombreUsuario LIKE ? AND Estado = 'Activo'";
+        String sql = "SELECT IDUsuario, nombreUsuario, Estado FROM usuarios WHERE nombreUsuario LIKE ?";
         try (Connection conn = ConexionDataBase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, "%" + nombre + "%");
@@ -161,6 +139,7 @@ public class UsuarioDAO {
                     Usuario usuario = new Usuario();
                     usuario.setIdUsuario(rs.getInt("IDUsuario"));
                     usuario.setNombreUsuario(rs.getString("nombreUsuario"));
+                    usuario.setEstado(rs.getString("Estado"));
                     usuarios.add(usuario);
                 }
             }
@@ -181,7 +160,6 @@ public class UsuarioDAO {
                     usuario = new Usuario();
                     usuario.setIdUsuario(rs.getInt("IDUsuario"));
                     usuario.setNombreUsuario(rs.getString("nombreUsuario"));
-                    usuario.setMail(rs.getString("Mail"));
                     usuario.setFechaCreacion(rs.getTimestamp("fechaCreacionUsuario"));
                     usuario.setFechaUltimoAcceso(rs.getTimestamp("fechaUltimoAccesoUsuario"));
                     usuario.setEstado(rs.getString("Estado"));

@@ -1,3 +1,4 @@
+// Archivo: src/controlador/CrearProyectoControlador.java
 package controlador;
 
 import modelo.Prioridad;
@@ -72,11 +73,9 @@ public class CrearProyectoControlador implements ActionListener {
         int nuevoProyectoId = proyectoDAO.insertarYObtenerId(nuevoProyecto);
 
         if (nuevoProyectoId != -1) {
-            // Asignar el Project Manager (usuario logueado) al proyecto
             Usuario usuarioLogueado = SesionUsuario.getUsuarioLogueado();
             if (usuarioLogueado != null) {
-                // Asumiendo que el usuario que crea el proyecto es el Project Manager (ID de Jerarquía = 1)
-                int idJerarquiaProjectManager = 1; // Ajusta esto si tu lógica es diferente
+                int idJerarquiaProjectManager = 1;
                 boolean designacionExitosa = proyectoDAO.insertarDesignacionProyecto(usuarioLogueado.getIdUsuario(), nuevoProyectoId, idJerarquiaProjectManager);
                 if (!designacionExitosa) {
                     JOptionPane.showMessageDialog(vista, "Error al asignar el usuario logueado como Project Manager.", "Advertencia", JOptionPane.WARNING_MESSAGE);
@@ -96,6 +95,6 @@ public class CrearProyectoControlador implements ActionListener {
         vista.getTxtDescripcionProyecto().setText("");
         vista.getDatePickerFechaInicio().getModel().setValue(null);
         vista.getDatePickerFechaFinalEstimada().getModel().setValue(null);
-        vista.getComboPrioridad().setSelectedIndex(0); // Seleccionar la primera prioridad o ninguna
+        vista.getComboPrioridad().setSelectedIndex(0);
     }
 }

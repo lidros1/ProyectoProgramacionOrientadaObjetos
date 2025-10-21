@@ -1,3 +1,4 @@
+// Archivo: src/persistencia/ProyectoDAO.java
 package persistencia;
 
 import modelo.Proyecto;
@@ -14,7 +15,7 @@ public class ProyectoDAO {
         List<Proyecto> proyectos = new ArrayList<>();
         String sql = "SELECT p.IDProyecto, p.NombreProyecto, p.DescripcionProyecto, " +
                 "p.ProcentajeAvance, p.FechaInicio, p.FechaFinalEstimada, " +
-                "e.NombreEstado, pr.NombrePrioridad, dp.IDJerarquiaUsuario " +
+                "e.NombreEstado, pr.NombrePrioridad, dp.IDJerarquiaUsuario, p.Estado " +
                 "FROM proyectos p " +
                 "JOIN designacionproyectos dp ON p.IDProyecto = dp.IDProyecto " +
                 "JOIN estados e ON p.IDEstado = e.IDEstado " +
@@ -37,6 +38,7 @@ public class ProyectoDAO {
                     proyecto.setNombreEstado(rs.getString("NombreEstado"));
                     proyecto.setNombrePrioridad(rs.getString("NombrePrioridad"));
                     proyecto.setIdJerarquiaUsuario(rs.getInt("IDJerarquiaUsuario"));
+                    proyecto.setEstado(rs.getString("Estado"));
                     proyectos.add(proyecto);
                 }
             }
@@ -129,11 +131,10 @@ public class ProyectoDAO {
 
     public List<Proyecto> listarTodosLosProyectos() {
         List<Proyecto> proyectos = new ArrayList<>();
-        String sql = "SELECT p.IDProyecto, p.NombreProyecto, p.FechaInicio, p.FechaFinalEstimada, pr.NombrePrioridad, e.NombreEstado " +
+        String sql = "SELECT p.IDProyecto, p.NombreProyecto, p.FechaInicio, p.FechaFinalEstimada, pr.NombrePrioridad, e.NombreEstado, p.Estado " +
                 "FROM proyectos p " +
                 "JOIN prioridades pr ON p.IDPrioridad = pr.IDPrioridad " +
-                "JOIN estados e ON p.IDEstado = e.IDEstado " +
-                "WHERE p.Estado = 'Activo'";
+                "JOIN estados e ON p.IDEstado = e.IDEstado"; // Mostramos todos para poder editarlos
 
         try (Connection conn = ConexionDataBase.getConnection();
              Statement stmt = conn.createStatement();
@@ -147,6 +148,7 @@ public class ProyectoDAO {
                 proyecto.setNombreEstado(rs.getString("NombreEstado"));
                 proyecto.setFechaInicio(rs.getDate("FechaInicio"));
                 proyecto.setFechaFinalEstimada(rs.getDate("FechaFinalEstimada"));
+                proyecto.setEstado(rs.getString("Estado")); // Guardamos el estado
 
                 java.math.BigDecimal avance = calcularPorcentajeAvance(proyecto.getIdProyecto());
                 proyecto.setPorcentajeAvance(avance);
@@ -159,26 +161,19 @@ public class ProyectoDAO {
         return proyectos;
     }
 
-    /**
-     * Actualiza los datos principales de un proyecto.
-     * @param proyecto El objeto Proyecto con los datos a actualizar.
-     * @return true si la actualización fue exitosa, false en caso contrario.
-     */
     public boolean actualizar(Proyecto proyecto) {
-        // --- CONSULTA SQL MODIFICADA ---
         String sql = "UPDATE proyectos SET NombreProyecto = ?, IDEstado = ?, IDPrioridad = ?, " +
-                "FechaInicio = ?, FechaFinalEstimada = ? WHERE IDProyecto = ?";
+                "FechaInicio = ?, FechaFinalEstimada = ?, Estado = ? WHERE IDProyecto = ?";
         try (Connection conn = ConexionDataBase.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, proyecto.getNombreProyecto());
             pstmt.setInt(2, proyecto.getIdEstado());
             pstmt.setInt(3, proyecto.getIdPrioridad());
-            // --- NUEVOS PARÁMETROS ---
             pstmt.setDate(4, proyecto.getFechaInicio() != null ? new java.sql.Date(proyecto.getFechaInicio().getTime()) : null);
             pstmt.setDate(5, proyecto.getFechaFinalEstimada() != null ? new java.sql.Date(proyecto.getFechaFinalEstimada().getTime()) : null);
-            // --- ID DEL PROYECTO ---
-            pstmt.setInt(6, proyecto.getIdProyecto());
+            pstmt.setString(6, proyecto.getEstado());
+            pstmt.setInt(7, proyecto.getIdProyecto());
 
             int filasAfectadas = pstmt.executeUpdate();
             return filasAfectadas > 0;

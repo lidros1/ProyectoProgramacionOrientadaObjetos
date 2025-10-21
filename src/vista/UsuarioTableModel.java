@@ -5,12 +5,10 @@ import modelo.Usuario;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-// Este es el Modelo para nuestra JTable. Le dice a la tabla cómo obtener los datos
-// de la lista de usuarios.
 public class UsuarioTableModel extends AbstractTableModel {
 
     private final List<Usuario> listaUsuarios;
-    private final String[] columnas = {"ID", "Nombre de Usuario", "Email"};
+    private final String[] columnas = {"ID", "Nombre de Usuario", "Estado"};
 
     public UsuarioTableModel(List<Usuario> listaUsuarios) {
         this.listaUsuarios = listaUsuarios;
@@ -40,13 +38,12 @@ public class UsuarioTableModel extends AbstractTableModel {
             case 1:
                 return usuario.getNombreUsuario();
             case 2:
-                return usuario.getMail();
+                return usuario.getEstado();
             default:
                 return null;
         }
     }
 
-    // Método para obtener el objeto Usuario completo de una fila específica
     public Usuario getUsuarioAt(int rowIndex) {
         return listaUsuarios.get(rowIndex);
     }

@@ -1,18 +1,16 @@
+// Archivo: src/controlador/UsuarioControlador.java
 package controlador;
 
 import modelo.Usuario;
 import persistencia.UsuarioDAO;
 import vista.GestionUsuariosVista;
-import vista.UsuarioTableModel; // Se necesita para el tableModel
+import vista.UsuarioTableModel;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-// NOTA IMPORTANTE: Esta clase de UsuarioControlador está pensada para una vista de "Gestion de Usuarios"
-// que contiene un CRUD. Si la estás usando para el flujo post-login, el flujo principal debería
-// ser al DashboardKanbanVista como te indiqué en pasos anteriores.
 public class UsuarioControlador implements ActionListener {
 
     private final GestionUsuariosVista vista;
@@ -22,28 +20,22 @@ public class UsuarioControlador implements ActionListener {
         this.vista = vista;
         this.usuarioDAO = usuarioDAO;
 
-        // Registrar este controlador como listener de los botones de la vista
-        // Asegúrate de que tu GestionUsuariosVista tenga estos botones
         this.vista.getBotonNuevo().addActionListener(this);
         this.vista.getBotonEditar().addActionListener(this);
         this.vista.getBotonEliminar().addActionListener(this);
     }
 
-    // Inicia la aplicación: carga los datos y hace visible la ventana.
     public void iniciar() {
         actualizarTabla();
         vista.setVisible(true);
     }
 
-    // Recarga los datos de la base de datos y los muestra en la tabla.
     private void actualizarTabla() {
-        // CORRECCIÓN: Asegúrate de que el método 'listarTodos()' exista en persistencia.UsuarioDAO
         List<Usuario> usuarios = usuarioDAO.listarTodos();
         UsuarioTableModel tableModel = new UsuarioTableModel(usuarios);
         vista.setTableModel(tableModel);
     }
 
-    // Maneja los eventos de los botones.
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.getBotonNuevo()) {
@@ -59,19 +51,14 @@ public class UsuarioControlador implements ActionListener {
         String nombre = JOptionPane.showInputDialog(vista, "Nombre de usuario:", "Nuevo Usuario", JOptionPane.PLAIN_MESSAGE);
         if (nombre == null || nombre.trim().isEmpty()) return;
 
-        String email = JOptionPane.showInputDialog(vista, "Email:", "Nuevo Usuario", JOptionPane.PLAIN_MESSAGE);
-        if (email == null || email.trim().isEmpty()) return;
-
         String contrasena = JOptionPane.showInputDialog(vista, "Contraseña:", "Nuevo Usuario", JOptionPane.PLAIN_MESSAGE);
         if (contrasena == null || contrasena.trim().isEmpty()) return;
 
-        Usuario nuevoUsuario = new Usuario(nombre, contrasena, email);
-        // Aquí deberías establecer una jerarquía por defecto si es requerida por tu tabla 'usuarios'
-        // nuevoUsuario.setIdGerarquiaUsuario(3); // Ejemplo: ID 3 para Developer
+        Usuario nuevoUsuario = new Usuario(nombre, contrasena);
 
-        if (usuarioDAO.insertar(nuevoUsuario)) {
+        if (usuarioDAO.insertarYObtenerId(nuevoUsuario) != -1) {
             JOptionPane.showMessageDialog(vista, "Usuario creado exitosamente.");
-            actualizarTabla(); // Refrescar la tabla
+            actualizarTabla();
         } else {
             JOptionPane.showMessageDialog(vista, "Error al crear el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -90,18 +77,12 @@ public class UsuarioControlador implements ActionListener {
         String nombre = JOptionPane.showInputDialog(vista, "Nombre de usuario:", usuarioSeleccionado.getNombreUsuario());
         if (nombre == null) return;
 
-        String email = JOptionPane.showInputDialog(vista, "Email:", usuarioSeleccionado.getMail());
-        if (email == null) return;
-
         String contrasena = JOptionPane.showInputDialog(vista, "Nueva contraseña (dejar en blanco para no cambiar):");
 
         usuarioSeleccionado.setNombreUsuario(nombre);
-        usuarioSeleccionado.setMail(email);
         if (contrasena != null && !contrasena.trim().isEmpty()) {
             usuarioSeleccionado.setContrasena(contrasena);
         }
-        // Si la jerarquía se actualiza aquí, también se debería pedir
-        // usuarioSeleccionado.setIdGerarquiaUsuario(nuevaJerarquia);
 
         if (usuarioDAO.actualizar(usuarioSeleccionado)) {
             JOptionPane.showMessageDialog(vista, "Usuario actualizado exitosamente.");
